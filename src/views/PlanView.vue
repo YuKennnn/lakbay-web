@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { destinationsData } from '@/assets/destinations.js';
 import UserReviews from './UserReviews.vue';
 
@@ -12,6 +12,11 @@ import JoinGroupModal from '@/components/modals/JoinGroup.vue';
 import AiItinerary from '@/components/modals/AiItinerary.vue';
 
 const destinations = ref(destinationsData);
+const userName = ref('Traveler');
+
+onMounted(() => {
+  userName.value = localStorage.getItem('user_fullname') || 'Traveler';
+});
 
 const activeModal = ref(null); 
 const selectedDestination = ref(null); 
@@ -39,7 +44,7 @@ const handleAskAI = () => {
         <div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-white opacity-10 blur-3xl"></div>
         
         <div class="md:w-1/2 relative z-10 text-center md:text-left">
-          <h2 class="text-3xl md:text-5xl font-black mb-3 flex items-center justify-center md:justify-start gap-3 tracking-tighter">Kamusta, YuKen!</h2>
+          <h2 class="text-3xl md:text-5xl font-black mb-3 flex items-center justify-center md:justify-start gap-3 tracking-tighter">Kamusta, {{ userName }}!</h2>
           <p class="text-white/90 text-lg font-medium">Plan your next group adventure.</p>
         </div>
         

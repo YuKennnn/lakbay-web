@@ -1,18 +1,24 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router'
 
 const user = ref({
-  name: 'YuKen',
-  email: 'yuken67@gmail.com',
+  name: 'Traveler',
+  email: 'travelling@lakbay.app',
   // Placeholder image for the profile picture
   avatar: '.././src/assets/images/me.png' 
+});
+
+onMounted(() => {
+  user.value.name = localStorage.getItem('user_fullname') || 'Traveler';
+  user.value.email = localStorage.getItem('user_email') || 'Unknown';
 });
 
 const router = useRouter()
 
 const handleSignOut = () => {
   // 1. Clear any user data/tokens here (e.g., localStorage.clear())
+  localStorage.removeItem('access_token')
   console.log("User signed out!")
   
   // 2. Push them back to the login screen
@@ -125,7 +131,7 @@ const settingsOptions = ref([
 
         </div>
 
-        <button class="sm:hidden w-full mt-8 bg-red-50 text-red-600 border border-red-100 font-bold py-3.5 rounded-xl hover:bg-red-100 transition shadow-sm">
+        <button @click="handleSignOut" class="sm:hidden w-full mt-8 bg-red-50 text-red-600 border border-red-100 font-bold py-3.5 rounded-xl hover:bg-red-100 transition shadow-sm">
           Sign Out
         </button>
 

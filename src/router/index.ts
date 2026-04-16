@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LandingView from '../views/LandingView.vue'
-import LoginView from '../views/LoginView.vue'
+import Authentication from '../views/Authentication.vue'
 import PlanView from '../views/PlanView.vue'
 import TripsView from '../views/TripsView.vue'
 import ProfileView from '../views/ProfileView.vue'
@@ -18,52 +18,69 @@ const router = createRouter({
     { 
       path: '/login', 
       name: 'Login', 
-      component: LoginView 
+      component: Authentication 
     },
     { 
       path: '/plan', 
       name: 'Plan', 
-      component: PlanView 
+      component: PlanView,
+      meta: { requiresAuth: true }
     },
     {
       path: '/reviews',
       name: 'Reviews',
-      component: UserReviews
+      component: UserReviews,
+      meta: { requiresAuth: true }
     },
     { 
       path: '/trips', 
       name: 'Trips', 
-      component: TripsView 
+      component: TripsView,
+      meta: { requiresAuth: true }
     },
     { 
       path: '/profile', 
       name: 'Profile', 
-      component: ProfileView 
+      component: ProfileView,
+      meta: { requiresAuth: true }
     },
     { 
       path: '/subscription', 
       name: 'Subscription', 
-      component: SubscriptionView 
+      component: SubscriptionView,
+      meta: { requiresAuth: true }
     },
-    // Add these to your routes array in router/index.ts
     { 
       path: '/groups', 
       name: 'Groups', 
-      component: () => import('@/views/GroupsView.vue') 
+      component: () => import('@/views/GroupsView.vue'),
+      meta: { requiresAuth: true }
     },
     { 
       path: '/groups/:id', 
       name: 'GroupDetails', 
-      component: () => import('@/views/GroupDetailsView.vue') 
+      component: () => import('@/views/GroupDetailsView.vue'),
+      meta: { requiresAuth: true }
     },
-    
     { 
       path: '/trip_details', 
       name: 'TripDetails',
-      component: () => import('@/views/TripDetailsView.vue') 
-    } // <-- Fixed the closing brace and indentation here
-    
+      component: () => import('@/views/TripDetailsView.vue'),
+      meta: { requiresAuth: true }
+    }
   ]
+})
+
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = !!localStorage.getItem('access_token')
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    next('/login')
+  } else if (to.path === '/login' && isAuthenticated) {
+    next('/plan')
+  } else {
+    next()
+  }
 })
 
 export default router

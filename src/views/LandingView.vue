@@ -18,7 +18,7 @@
         </h1>
         
         <p class="text-lg sm:text-xl text-gray-500 mb-10 max-w-2xl mx-auto font-medium leading-relaxed">
-          Search any destination and instantly get 3 tailored AI options from budget to premium. We break down your travel and commute costs, split it among your group, and tell you exactly how much you need to save daily until your departure date!
+          We break down your travel and commute costs, split it among your group, and tell you exactly how much you need to save daily until your departure date!
         </p>
         
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -46,7 +46,7 @@
                 <div class="h-2 w-3/4 bg-gray-200 rounded-md"></div>
               </div>
               <div class="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
-                 <div class="text-sm font-bold text-gray-700">₱4,500 total</div>
+                 <div class="text-sm font-bold text-gray-700">₱2,500 total</div>
                  <div class="text-xs text-[#2A8B8B] font-bold bg-teal-100 px-2 py-1 rounded">₱150/day</div>
               </div>
             </div>
@@ -60,7 +60,7 @@
                 <div class="h-2 w-5/6 bg-gray-200 rounded-md"></div>
               </div>
               <div class="mt-6 pt-4 border-t border-gray-100 flex justify-between items-center">
-                 <div class="text-gray-900 font-bold">₱8,200 total</div>
+                 <div class="text-gray-900 font-bold">₱5,200 total</div>
                  <div class="text-sm text-white font-bold bg-[#D97736] px-3 py-1.5 rounded shadow-sm">₱275/day</div>
               </div>
             </div>
@@ -73,7 +73,7 @@
                 <div class="h-2 w-1/3 bg-gray-200 rounded-md"></div>
               </div>
               <div class="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
-                 <div class="text-sm font-bold text-gray-700">₱15,000 total</div>
+                 <div class="text-sm font-bold text-gray-700">₱11,000 total</div>
                  <div class="text-xs text-gray-600 font-bold bg-gray-200 px-2 py-1 rounded">₱500/day</div>
               </div>
             </div>
