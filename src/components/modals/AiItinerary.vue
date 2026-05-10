@@ -89,7 +89,7 @@ watch(() => props.isOpen, (newVal) => {
         <button @click="$emit('close')" class="flex-1 py-3.5 rounded-2xl font-black text-gray-400 hover:bg-gray-50 transition border-2 border-gray-100 uppercase tracking-widest text-xs">
           Discard
         </button>
-        <button @click="$emit('save')" class="flex-1 bg-[#D97736] text-white py-3.5 rounded-2xl font-black shadow-[0_8px_20px_rgba(217,119,54,0.3)] hover:bg-[#c4682c] hover:-translate-y-1 transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2">
+        <button @click="$emit('save', generatedTrip)" class="flex-1 bg-[#D97736] text-white py-3.5 rounded-2xl font-black shadow-[0_8px_20px_rgba(217,119,54,0.3)] hover:bg-[#c4682c] hover:-translate-y-1 transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
           Save to Trips
         </button>

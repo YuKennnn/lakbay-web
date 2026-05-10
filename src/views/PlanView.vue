@@ -11,6 +11,11 @@ import OneDayPlanModal from '@/components/modals/OneDayPlan.vue';
 // import ScanReceiptModal from '@/components/modals/ScanReceipt.vue';
 // Import the AI Modal
 import AiItinerary from '@/components/modals/AiItinerary.vue';
+import { useTrips } from '@/composables/useTrips';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const { addTrip } = useTrips();
 
 const destinations = ref(destinationsData);
 const userName = ref('Traveler');
@@ -34,6 +39,27 @@ const closeDetails = () => { isDetailsOpen.value = false; };
 const handleAskAI = () => {
   if (aiSearchQuery.value.trim() === '') return; // Don't trigger if empty
   activeModal.value = 'aiResult';
+};
+
+const handleSaveAiTrip = (tripData) => {
+  const extractedBudget = tripData.budget.split(' ')[0] || '₱12,500'; // Fallback
+  
+  const newTrip = {
+    id: Date.now(),
+    title: `Trip to ${aiSearchQuery.value}`,
+    location: aiSearchQuery.value,
+    date: 'TBD',
+    status: 'Upcoming',
+    spent: '₱0',
+    totalBudget: extractedBudget,
+    budgetPercent: 0,
+    image: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=600&q=80', // Default placeholder
+    link: '/trip_details'
+  };
+
+  addTrip(newTrip);
+  closeModal();
+  router.push('/trips');
 };
 </script>
 
@@ -109,7 +135,7 @@ const handleAskAI = () => {
       :is-open="activeModal === 'aiResult'" 
       :query="aiSearchQuery" 
       @close="closeModal" 
-      @save="closeModal(); $router.push('/trips')" 
+      @save="handleSaveAiTrip" 
     />
 
   </div>

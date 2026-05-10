@@ -4,8 +4,8 @@ import { ref } from 'vue';
 const routeInfo = ref({
   start: 'Davao City (DVO)',
   end: 'Kota Beach Resort',
-  distance: '850 km',
-  duration: '15h 10m',
+  distance: '95 km',
+  duration: '14h 10m',
   // Using an actual static map style image for a "Google Maps" feel
   mapImage: 'https://maps.googleapis.com/maps/api/staticmap?center=Cebu,Philippines&zoom=8&size=800x600&maptype=roadmap&path=color:0x2A8B8B|weight:5|Davao+City|Mactan|Hagnaya|Bantayan&key=YOUR_API_KEY',
   stops: [
