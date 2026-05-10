@@ -1,32 +1,20 @@
 <script setup>
-import { ref } from 'vue';
+import { computed } from 'vue';
 
-// Dummy data for the itinerary timeline based on the Figma design
-const itineraryDays = ref([
-  {
-    day: 'Day 1',
-    activities: [
-      {
-        id: 1,
-        title: 'Island Hopping Tour',
-        time: '09:00',
-        location: 'Mactan Island',
-        price: '₱2,500'
-      },
-      {
-        id: 2,
-        title: "Visit Magellan's Cross",
-        time: '14:00',
-        location: 'Downtown Cebu',
-        price: null
-      }
-    ]
-  },
-  {
-    day: 'Day 2',
-    activities: [] // Leaving this empty just to show the Day 2 badge
-  }
-]);
+const props = defineProps({
+  trip: Object
+});
+
+const itineraryDays = computed(() => {
+  return props.trip?.itinerary || [
+    {
+      day: 'Day 1',
+      activities: [
+        { id: 1, title: 'Check-in', time: '14:00', location: props.trip?.location || 'Accommodation', price: null }
+      ]
+    }
+  ];
+});
 </script>
 
 <template>

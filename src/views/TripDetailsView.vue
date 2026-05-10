@@ -1,6 +1,7 @@
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useTrips } from '@/composables/useTrips';
 
 // Import your 5 tab components
 import ItineraryTab from '@/components/trip_tabs/ItineraryTab.vue';
@@ -9,7 +10,9 @@ import BudgetTab from '@/components/trip_tabs/BudgetTab.vue';
 import MembersTab from '@/components/trip_tabs/MembersTab.vue';
 import TasksTab from '@/components/trip_tabs/TasksTab.vue';
 
+const route = useRoute();
 const router = useRouter();
+const { trips } = useTrips();
 
 // The currently selected tab
 const activeTab = ref('Itinerary');
@@ -17,12 +20,25 @@ const activeTab = ref('Itinerary');
 // The list of tabs to render the buttons
 const tabs = ['Itinerary', 'Route', 'Budget', 'Members', 'Tasks'];
 
-// Hardcoded trip data
-const trip = ref({
-  name: 'Kota Beach Resort',
-  location: 'Bantayan Cebu, Philippines',
-  date: 'Dec 20-25, 2025',
-  image: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80'
+// Compute the current trip based on the route query id
+const trip = computed(() => {
+  const id = Number(route.query.id);
+  if (id) {
+    const found = trips.value.find(t => t.id === id);
+    if (found) {
+      return {
+        ...found,
+        name: found.title,
+      };
+    }
+  }
+  // Fallback if no ID is passed or trip not found
+  return {
+    name: 'Kota Beach Resort',
+    location: 'Bantayan Cebu, Philippines',
+    date: 'Dec 20-25, 2025',
+    image: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=1200&q=80'
+  };
 });
 </script>
 
@@ -74,11 +90,11 @@ const trip = ref({
       </div>
 
       <div class="py-6 md:py-8 w-full">
-        <ItineraryTab v-if="activeTab === 'Itinerary'" />
-        <RouteTab v-if="activeTab === 'Route'" />
-        <BudgetTab v-if="activeTab === 'Budget'" />
-        <MembersTab v-if="activeTab === 'Members'" />
-        <TasksTab v-if="activeTab === 'Tasks'" />
+        <ItineraryTab v-if="activeTab === 'Itinerary'" :trip="trip" />
+        <RouteTab v-if="activeTab === 'Route'" :trip="trip" />
+        <BudgetTab v-if="activeTab === 'Budget'" :trip="trip" />
+        <MembersTab v-if="activeTab === 'Members'" :trip="trip" />
+        <TasksTab v-if="activeTab === 'Tasks'" :trip="trip" />
       </div>
 
     </div>

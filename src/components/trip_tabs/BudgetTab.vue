@@ -1,12 +1,18 @@
 <script setup>
-import { ref } from 'vue';
+import { computed } from 'vue';
 
-const budget = ref({
-  total: '₱25,000',
-  spent: '₱5,550',
-  remaining: '₱19,450',
-  percentSpent: 22,
-  members: 2
+const props = defineProps({
+  trip: Object
+});
+
+const budget = computed(() => {
+  return props.trip?.budgetObj || {
+    total: props.trip?.totalBudget || '₱0',
+    spent: props.trip?.spent || '₱0',
+    remaining: '₱0',
+    percentSpent: props.trip?.budgetPercent || 0,
+    members: props.trip?.members?.length || 1
+  };
 });
 </script>
 

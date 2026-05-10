@@ -42,19 +42,24 @@ const handleAskAI = () => {
 };
 
 const handleSaveAiTrip = (tripData) => {
-  const extractedBudget = tripData.budget.split(' ')[0] || '₱12,500'; // Fallback
-  
   const newTrip = {
     id: Date.now(),
-    title: `Trip to ${aiSearchQuery.value}`,
-    location: aiSearchQuery.value,
-    date: 'TBD',
+    title: tripData.title,
+    location: tripData.location,
+    date: tripData.date,
     status: 'Upcoming',
-    spent: '₱0',
-    totalBudget: extractedBudget,
-    budgetPercent: 0,
-    image: 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?auto=format&fit=crop&w=600&q=80', // Default placeholder
-    link: '/trip_details'
+    spent: tripData.budgetObj.spent,
+    totalBudget: tripData.budgetObj.total,
+    budgetPercent: tripData.budgetObj.percentSpent,
+    image: tripData.image, 
+    link: '/trip_details',
+    
+    // Store the rich details for TripDetailsView
+    itinerary: tripData.itinerary,
+    route: tripData.route,
+    budgetObj: tripData.budgetObj,
+    members: tripData.members,
+    tasks: tripData.tasks
   };
 
   addTrip(newTrip);
@@ -99,26 +104,26 @@ const handleSaveAiTrip = (tripData) => {
         </div>
       </div>
 
-      <div class="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 mb-10 sm:mb-12">
-        <button @click="activeModal = 'newTrip'" class="w-full sm:w-auto bg-white text-[#2A8B8B] border border-[#2A8B8B]/30 py-3 px-8 rounded-full font-bold text-sm shadow-sm hover:bg-teal-50 transition">+ Create New Trip</button>
-        <button @click="activeModal = 'joinGroup'" class="w-full sm:w-auto bg-white text-[#2A8B8B] border border-[#2A8B8B]/30 py-3 px-8 rounded-full font-bold text-sm shadow-sm hover:bg-teal-50 transition">Join Group</button>
-        <button @click="activeModal = 'oneDayPlan'" class="w-full sm:w-auto bg-white text-[#2A8B8B] border border-[#2A8B8B]/30 py-3 px-8 rounded-full font-bold text-sm shadow-sm hover:bg-teal-50 transition">1-Day Plan</button>
+      <div class="flex flex-wrap gap-2 sm:gap-3 mb-8 sm:mb-12">
+        <button @click="activeModal = 'newTrip'" class="bg-white text-[#2A8B8B] border border-[#2A8B8B]/30 py-2.5 px-5 sm:py-3 sm:px-8 rounded-full font-bold text-xs sm:text-sm shadow-sm hover:bg-teal-50 transition">+ Create New Trip</button>
+        <button @click="activeModal = 'joinGroup'" class="bg-white text-[#2A8B8B] border border-[#2A8B8B]/30 py-2.5 px-5 sm:py-3 sm:px-8 rounded-full font-bold text-xs sm:text-sm shadow-sm hover:bg-teal-50 transition">Join Group</button>
+        <button @click="activeModal = 'oneDayPlan'" class="bg-white text-[#2A8B8B] border border-[#2A8B8B]/30 py-2.5 px-5 sm:py-3 sm:px-8 rounded-full font-bold text-xs sm:text-sm shadow-sm hover:bg-teal-50 transition">1-Day Plan</button>
         </div>
 
       <div class="mb-12">
-        <h3 class="text-2xl text-[#2A8B8B] font-bold mb-6">Suggested Destinations</h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          <div v-for="dest in destinations" :key="dest.id" @click="openDetails(dest)" class="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow border border-gray-100 group cursor-pointer">
-            <div class="relative h-48">
+        <h3 class="text-lg sm:text-2xl text-[#2A8B8B] font-bold mb-4 sm:mb-6">Suggested Destinations</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+          <div v-for="dest in destinations" :key="dest.id" @click="openDetails(dest)" class="bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow border border-gray-100 group cursor-pointer">
+            <div class="relative h-28 sm:h-48">
               <img :src="dest.image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-              <span class="absolute top-3 right-3 bg-[#2A8B8B] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md">{{ dest.match }} match</span>
+              <span class="absolute top-2 right-2 sm:top-3 sm:right-3 bg-[#2A8B8B] text-white text-[9px] sm:text-xs font-bold px-2 py-1 sm:px-3 sm:py-1.5 rounded-full shadow-md">{{ dest.match }} match</span>
             </div>
-            <div class="p-5">
-              <h4 class="font-bold text-[#2A8B8B] text-lg truncate mb-1">{{ dest.name }}</h4>
-              <p class="text-xs text-gray-400">{{ dest.location }}</p>
-              <div class="flex justify-between items-center mt-4 border-t border-gray-50 pt-4">
-                <span class="text-[#D97736] font-bold text-base">{{ dest.price }}</span>
-                <span v-if="dest.lokal" class="bg-[#F4D03F]/20 text-yellow-800 text-[10px] px-2.5 py-1 rounded-md font-bold uppercase tracking-wider">Lokal</span>
+            <div class="p-3 sm:p-5">
+              <h4 class="font-bold text-[#2A8B8B] text-sm sm:text-lg truncate mb-0.5 sm:mb-1">{{ dest.name }}</h4>
+              <p class="text-[10px] sm:text-xs text-gray-400">{{ dest.location }}</p>
+              <div class="flex justify-between items-center mt-2 sm:mt-4 border-t border-gray-50 pt-2 sm:pt-4">
+                <span class="text-[#D97736] font-bold text-xs sm:text-base">{{ dest.price }}</span>
+                <span v-if="dest.lokal" class="bg-[#F4D03F]/20 text-yellow-800 text-[8px] sm:text-[10px] px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md font-bold uppercase tracking-wider">Lokal</span>
               </div>
             </div>
           </div>
@@ -130,7 +135,7 @@ const handleSaveAiTrip = (tripData) => {
     <DestinationPanel :is-open="isDetailsOpen" :destination="selectedDestination" @close="closeDetails" @create-trip="closeDetails(); activeModal = 'newTrip'" />
     <NewTripModal :is-open="activeModal === 'newTrip'" @close="closeModal" />
     <JoinGroupModal :is-open="activeModal === 'joinGroup'" @close="closeModal" />
-    <OneDayPlanModal :is-open="activeModal === 'oneDayPlan'" @close="closeModal" />
+    <OneDayPlanModal :is-open="activeModal === 'oneDayPlan'" @close="closeModal" @save="handleSaveAiTrip" />
     <AiItinerary
       :is-open="activeModal === 'aiResult'" 
       :query="aiSearchQuery" 

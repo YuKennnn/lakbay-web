@@ -106,7 +106,7 @@ onUnmounted(() => {
       <!-- Footer Buttons -->
       <div class="p-6 border-t border-dashed border-gray-300 flex gap-3 bg-amber-50/50">
         <button @click="downloadPdf" class="flex-1 bg-white border border-gray-200 py-3.5 rounded-xl font-bold text-gray-600 hover:bg-gray-50 transition shadow-sm text-sm">
-          Download PDF
+          Print PDF
         </button>
         <button class="flex-1 bg-[#D97736] text-white py-3.5 rounded-xl font-bold shadow-md hover:bg-[#c4682c] hover:-translate-y-0.5 transition-all text-sm">
           Share Receipt

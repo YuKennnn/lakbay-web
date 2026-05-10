@@ -1,11 +1,15 @@
 <script setup>
-import { ref } from 'vue';
+import { computed } from 'vue';
 
-const members = ref([
-  { id: 1, name: 'YuKen', role: 'Host', email: 'yuken67@gmail.com', avatar: 'https://i.pravatar.cc/100?u=yuken' },
-  { id: 2, name: 'Stephanie', role: 'Editor', email: 'steph@example.com', avatar: 'https://i.pravatar.cc/100?u=steph' },
-  { id: 3, name: 'Arjean', role: 'Viewer', email: 'arjean@example.com', avatar: 'https://i.pravatar.cc/100?u=arjean' }
-]);
+const props = defineProps({
+  trip: Object
+});
+
+const members = computed(() => {
+  return props.trip?.members || [
+    { id: 1, name: 'You', role: 'Host', email: 'you@example.com', avatar: 'https://i.pravatar.cc/100?u=you' }
+  ];
+});
 </script>
 
 <template>

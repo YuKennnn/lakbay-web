@@ -1,22 +1,26 @@
 <script setup>
-import { ref } from 'vue';
+import { computed } from 'vue';
 
-const routeInfo = ref({
-  start: 'Davao City (DVO)',
-  end: 'Kota Beach Resort',
-  distance: '95 km',
-  duration: '14h 10m',
-  // Using an actual static map style image for a "Google Maps" feel
-  mapImage: 'https://maps.googleapis.com/maps/api/staticmap?center=Cebu,Philippines&zoom=8&size=800x600&maptype=roadmap&path=color:0x2A8B8B|weight:5|Davao+City|Mactan|Hagnaya|Bantayan&key=YOUR_API_KEY',
-  stops: [
-    { id: 1, name: 'Mactan-Cebu International Airport', type: 'Airport', icon: '✈️' },
-    { id: 2, name: 'Hagnaya Port', type: 'Port', icon: '🚢' },
-    { id: 3, name: 'Santa Fe Port', type: 'Port', icon: '⚓' }
-  ]
+const props = defineProps({
+  trip: Object
+});
+
+const routeInfo = computed(() => {
+  return props.trip?.route || {
+    start: 'Origin',
+    end: props.trip?.location || 'Destination',
+    distance: 'Unknown',
+    duration: 'N/A',
+    mapImage: 'https://maps.googleapis.com/maps/api/staticmap?center=Cebu,Philippines&zoom=8&size=800x600&maptype=roadmap&key=YOUR_API_KEY',
+    stops: [
+      { id: 1, name: 'Origin', type: 'Start', icon: '📍' },
+      { id: 2, name: props.trip?.location || 'Destination', type: 'End', icon: '📍' }
+    ]
+  };
 });
 
 const openGoogleMaps = () => {
-  const query = encodeURIComponent('Kota Beach Resort, Bantayan, Cebu');
+  const query = encodeURIComponent(props.trip?.location || 'Philippines');
   window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
 };
 </script>
@@ -26,7 +30,7 @@ const openGoogleMaps = () => {
     <div class="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden relative group">
       <div class="h-80 sm:h-[450px] relative">
         <img 
-          src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=1200&q=80" 
+          :src="routeInfo.mapImage" 
           class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
           alt="Route Map"
         />
@@ -36,7 +40,7 @@ const openGoogleMaps = () => {
         <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
           <div class="relative flex flex-col items-center">
             <div class="bg-white px-3 py-1.5 rounded-lg shadow-xl mb-2 flex items-center gap-2 border border-gray-100 animate-bounce">
-              <span class="text-xs font-bold text-gray-800">Kota Beach</span>
+              <span class="text-xs font-bold text-gray-800">{{ trip?.name || trip?.location || 'Destination' }}</span>
             </div>
             <svg class="w-10 h-10 text-red-500 drop-shadow-lg" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
@@ -96,7 +100,7 @@ const openGoogleMaps = () => {
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
           </svg>
-          <span class="text-sm font-medium italic">Destination reached at Bantayan Island</span>
+          <span class="text-sm font-medium italic">Destination reached at {{ trip?.location || 'Location' }}</span>
         </div>
       </div>
     </div>

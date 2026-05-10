@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch } from 'vue';
+import { generateTripData } from '@/utils/mockAiPlanner';
 
 const props = defineProps({
   isOpen: Boolean,
@@ -10,22 +11,13 @@ const emit = defineEmits(['close', 'save']);
 
 const isGenerating = ref(true);
 
-// Mock generated itinerary data
-const generatedTrip = ref({
-  title: 'AI Generated Adventure',
-  duration: '3 Days, 2 Nights',
-  budget: '₱12,500 Estimated',
-  days: [
-    { day: 1, title: 'Arrival & Exploration', activities: ['Check-in at accommodation', 'Local food tasting tour', 'Sunset watching at the main viewpoint'] },
-    { day: 2, title: 'Adventure & Nature', activities: ['Early morning island hopping / hike', 'Picnic lunch by nature', 'Cultural museum or heritage site visit'] },
-    { day: 3, title: 'Relaxation & Departure', activities: ['Souvenir shopping at the local market', 'Relaxing cafe stop', 'Departure'] }
-  ]
-});
+const generatedTrip = ref({});
 
 // Watch for the modal opening to trigger the "AI Loading" simulation
 watch(() => props.isOpen, (newVal) => {
   if (newVal) {
     isGenerating.value = true;
+    generatedTrip.value = generateTripData(props.query);
     // Simulate API delay for 2.5 seconds to impress the panel HAHA!
     setTimeout(() => {
       isGenerating.value = false;
@@ -67,17 +59,17 @@ watch(() => props.isOpen, (newVal) => {
           <h2 class="text-3xl font-black text-gray-800 tracking-tighter mb-2">{{ generatedTrip.title }}</h2>
           <div class="flex gap-4 text-sm font-bold text-gray-400 mb-8">
             <span class="flex items-center gap-1"><svg class="w-4 h-4 text-[#D97736]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> {{ generatedTrip.duration }}</span>
-            <span class="flex items-center gap-1"><svg class="w-4 h-4 text-[#2A8B8B]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> {{ generatedTrip.budget }}</span>
+            <span class="flex items-center gap-1"><svg class="w-4 h-4 text-[#2A8B8B]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> {{ generatedTrip.budgetObj?.total }} Estimated</span>
           </div>
 
           <div class="space-y-6">
-            <div v-for="day in generatedTrip.days" :key="day.day" class="relative pl-6 border-l-2 border-teal-100">
+            <div v-for="day in generatedTrip.itinerary" :key="day.day" class="relative pl-6 border-l-2 border-teal-100">
               <div class="absolute -left-[9px] top-0 w-4 h-4 bg-[#2A8B8B] rounded-full border-4 border-white shadow-sm"></div>
-              <h4 class="font-black text-[#2A8B8B] text-lg mb-3">Day {{ day.day }}: <span class="text-gray-700">{{ day.title }}</span></h4>
+              <h4 class="font-black text-[#2A8B8B] text-lg mb-3">{{ day.day }}</h4>
               <ul class="space-y-3">
-                <li v-for="(act, idx) in day.activities" :key="idx" class="flex items-start gap-3 bg-gray-50/50 p-3 rounded-xl border border-gray-100">
+                <li v-for="act in day.activities" :key="act.id" class="flex items-start gap-3 bg-gray-50/50 p-3 rounded-xl border border-gray-100">
                   <span class="text-[#D97736] mt-0.5"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg></span>
-                  <span class="text-sm font-bold text-gray-600">{{ act }}</span>
+                  <span class="text-sm font-bold text-gray-600">{{ act.title }}</span>
                 </li>
               </ul>
             </div>

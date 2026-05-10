@@ -16,7 +16,76 @@ L.Icon.Default.mergeOptions({
 });
 
 const props = defineProps({ isOpen: Boolean });
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'save']);
+
+const saveToTrips = () => {
+  if (!currentOption.value) return;
+  const opt = currentOption.value;
+  const places = opt.places_and_activities || [];
+  const totalBudget = opt.total_budget || 0;
+  const loc = destination.value || 'Unknown';
+
+  // Build itinerary from places
+  const activities = places.map((p, i) => ({
+    id: i + 1,
+    title: p.place,
+    time: p.time?.split('(')[1]?.split(')')[0]?.split('-')[0]?.trim() || p.time || '',
+    location: p.address || loc,
+    price: p.estimated_cost ? `₱${p.estimated_cost.toLocaleString()}` : null,
+  }));
+
+  // Build route stops from places with coords
+  const stops = [];
+  if (opt.starting_point_coords?.name) {
+    stops.push({ id: 1, name: opt.starting_point_coords.name, type: 'Start', icon: '🏁' });
+  }
+  places.forEach((p, i) => {
+    if (p.place) stops.push({ id: i + 2, name: p.place, type: 'Activity', icon: '📍' });
+  });
+
+  // Build members based on group size
+  const names = ['YuKen','Alyssa','Jeric','Camille','Renz','Bea','Joaquin','Nica','Andrei','Steph'];
+  const roles = ['Host','Editor','Viewer','Contributor','Viewer','Editor','Viewer','Contributor','Viewer','Editor'];
+  const count = Math.min(Number(peopleCount.value) || 1, 10);
+  const members = Array.from({ length: count }, (_, i) => ({
+    id: i + 1,
+    name: names[i] || `Member ${i + 1}`,
+    role: roles[i] || 'Viewer',
+    email: `${(names[i] || 'member').toLowerCase()}@gmail.com`,
+    avatar: `https://i.pravatar.cc/100?u=lakbay${i + 1}`,
+  }));
+
+  const tripData = {
+    title: planTitle.value || `1-Day Trip to ${loc}`,
+    location: `${loc}, Philippines`,
+    date: planDate.value || 'TBD',
+    image: 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&w=600&q=80',
+    budgetObj: {
+      total: `₱${totalBudget.toLocaleString()}`,
+      spent: `₱${Math.round(totalBudget * 0.3).toLocaleString()}`,
+      remaining: `₱${Math.round(totalBudget * 0.7).toLocaleString()}`,
+      percentSpent: 30,
+      members: count,
+    },
+    itinerary: [{ day: 'Day 1', activities }],
+    route: {
+      start: startingPoint.value || 'Starting Point',
+      end: loc,
+      distance: `${Math.floor(Math.random() * 100 + 10)} km`,
+      duration: opt.transportation_type || 'N/A',
+      mapImage: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1200&q=80',
+      stops,
+    },
+    members,
+    tasks: [
+      { id: 1, title: 'Confirm group headcount', assignee: members[0]?.name, completed: true, avatar: members[0]?.avatar },
+      { id: 2, title: 'Book transportation', assignee: members[Math.min(1, count - 1)]?.name, completed: false, avatar: members[Math.min(1, count - 1)]?.avatar },
+      { id: 3, title: 'Pack essentials & snacks', assignee: 'Everyone', completed: false, avatar: members[0]?.avatar },
+    ],
+  };
+
+  emit('save', tripData);
+};
 
 const mode = ref('form'); // form, loading, result
 const generatedOptions = ref(null);
@@ -486,7 +555,7 @@ User Preferences: ${planTitle.value}`;
         <button @click="$emit('close')" class="flex-1 min-w-[100px] py-3.5 rounded-2xl font-black text-gray-400 hover:bg-gray-50 transition border-2 border-gray-100 uppercase tracking-widest text-[10px] sm:text-xs">
           Discard
         </button>
-        <button @click="$emit('close')" class="w-full sm:w-auto sm:flex-[1.5] bg-[#D97736] text-white py-3.5 rounded-2xl font-black shadow-[0_8px_20px_rgba(217,119,54,0.3)] hover:bg-[#c4682c] hover:-translate-y-1 transition-all uppercase tracking-widest text-[10px] sm:text-xs flex items-center justify-center gap-2">
+        <button @click="saveToTrips" class="w-full sm:w-auto sm:flex-[1.5] bg-[#D97736] text-white py-3.5 rounded-2xl font-black shadow-[0_8px_20px_rgba(217,119,54,0.3)] hover:bg-[#c4682c] hover:-translate-y-1 transition-all uppercase tracking-widest text-[10px] sm:text-xs flex items-center justify-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
           Save to Trips
         </button>

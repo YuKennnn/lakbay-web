@@ -59,42 +59,42 @@ const openReceipt = (trip) => {
         <p class="font-bold text-gray-500 text-lg">No {{ activeTab.toLowerCase() }} trips found</p>
       </div>
 
-      <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        <div v-for="trip in filteredTrips" :key="trip.id" class="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition flex flex-col h-full group">
-          <div class="w-full h-48 relative shrink-0 overflow-hidden">
+      <div v-else class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+        <div v-for="trip in filteredTrips" :key="trip.id" class="bg-white rounded-xl sm:rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition flex flex-col h-full group">
+          <div class="w-full h-28 sm:h-48 relative shrink-0 overflow-hidden">
             <img :src="trip.image" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
             <span :class="[
-              'absolute top-3 left-3 backdrop-blur-md text-white text-[10px] uppercase tracking-wider font-bold px-3 py-1 rounded-full',
+              'absolute top-2 left-2 sm:top-3 sm:left-3 backdrop-blur-md text-white text-[8px] sm:text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-full',
               trip.status === 'Completed' ? 'bg-green-600/60' : trip.status === 'Ongoing' ? 'bg-blue-600/60' : 'bg-orange-600/60'
             ]">{{ trip.status }}</span>
           </div>
 
-          <div class="p-5 flex flex-grow flex-col justify-between">
+          <div class="p-3 sm:p-5 flex flex-grow flex-col justify-between">
             <div>
-              <h3 class="font-bold text-gray-800 text-lg mb-1 truncate">{{ trip.title }}</h3>
-              <p class="text-xs text-gray-500 mb-4">{{ trip.date }}</p>
-              <div class="mb-4">
-                <div class="flex justify-between text-xs mb-1">
+              <h3 class="font-bold text-gray-800 text-sm sm:text-lg mb-0.5 sm:mb-1 truncate">{{ trip.title }}</h3>
+              <p class="text-[10px] sm:text-xs text-gray-500 mb-2 sm:mb-4">{{ trip.date }}</p>
+              <div class="mb-2 sm:mb-4">
+                <div class="flex justify-between text-[10px] sm:text-xs mb-1">
                   <span class="font-semibold text-gray-600">Budget Progress</span>
                   <span class="font-bold text-[#2A8B8B]">{{ trip.budgetPercent }}%</span>
                 </div>
-                <div class="w-full bg-gray-100 rounded-full h-2">
-                  <div class="bg-[#2A8B8B] h-2 rounded-full transition-all duration-500" :style="{ width: trip.budgetPercent + '%' }"></div>
+                <div class="w-full bg-gray-100 rounded-full h-1.5 sm:h-2">
+                  <div class="bg-[#2A8B8B] h-1.5 sm:h-2 rounded-full transition-all duration-500" :style="{ width: trip.budgetPercent + '%' }"></div>
                 </div>
               </div>
             </div>
 
-            <div class="flex gap-2 mt-2">
-              <router-link :to="{ path: trip.link, query: { status: trip.status } }" class="flex-grow bg-white border border-gray-200 py-2.5 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-50 transition text-center">
+            <div class="flex flex-col sm:flex-row gap-1.5 sm:gap-2 mt-1 sm:mt-2">
+              <router-link :to="{ path: trip.link, query: { id: trip.id, status: trip.status } }" class="flex-grow bg-white border border-gray-200 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl text-[10px] sm:text-sm font-bold text-gray-600 hover:bg-gray-50 transition text-center">
                 {{ trip.status === 'Upcoming' ? 'View Plan' : 'View Itinerary' }}
               </router-link>
               
               <button 
                 v-if="trip.status === 'Completed'" 
                 @click="openReceipt(trip)"
-                class="bg-[#D97736]/10 text-[#D97736] px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-[#D97736]/20 transition flex items-center gap-2"
+                class="bg-[#D97736]/10 text-[#D97736] px-3 py-1.5 sm:px-4 sm:py-2.5 rounded-lg sm:rounded-xl text-[10px] sm:text-sm font-bold hover:bg-[#D97736]/20 transition flex items-center justify-center gap-1 sm:gap-2"
               >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 Receipt
