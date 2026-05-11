@@ -22,10 +22,10 @@
         </p>
         
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <router-link to="/login" class="w-full sm:w-auto bg-[#2A8B8B] hover:bg-[#1e6666] text-white px-8 py-4 rounded-full font-black text-lg shadow-xl shadow-teal-900/20 hover:shadow-teal-900/40 hover:-translate-y-1 transition-all">
+          <router-link to="/login" class="w-75 sm:w-auto bg-[#2A8B8B] hover:bg-[#1e6666] text-white px-8 py-4 rounded-full font-black text-lg shadow-xl shadow-teal-900/20 hover:shadow-teal-900/40 hover:-translate-y-1 transition-all">
             Start Planning Now
           </router-link>
-          <router-link to="/login" class="w-full sm:w-auto bg-white border-2 border-gray-100 hover:border-[#D97736]/30 hover:bg-orange-50 text-gray-700 hover:text-[#D97736] px-8 py-4 rounded-full font-bold text-lg shadow-sm transition-all">
+          <router-link to="/login" class="w-75 sm:w-auto bg-white border-2 border-gray-100 hover:border-[#D97736]/30 hover:bg-orange-50 text-gray-700 hover:text-[#D97736] px-8 py-4 rounded-full font-bold text-lg shadow-sm transition-all">
             Join a Group
           </router-link>
         </div>

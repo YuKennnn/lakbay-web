@@ -20,7 +20,7 @@ const groups = ref([
     dates: 'April 10 - 15, 2026',
     memberCount: 4,
     // THE FIX: Replace the placeholder with a real Unsplash image of a group of friends
-    image: 'https://images.unsplash.com/photo-1539139113444-e43401f3b3ef?auto=format&fit=crop&w=600&q=80',
+    image: 'https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=600&q=80',
     avatars: ['https://i.pravatar.cc/150?u=a', 'https://i.pravatar.cc/150?u=b', 'https://i.pravatar.cc/150?u=c', 'https://i.pravatar.cc/150?u=d']
   }
 ]);

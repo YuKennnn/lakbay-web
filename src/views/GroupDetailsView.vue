@@ -36,6 +36,41 @@ const memories = ref([
   { id: 14, type: 'video', url: 'https://images.unsplash.com/photo-1503220317375-aaad61436b1b?auto=format&fit=crop&w=600&q=80', location: 'Campfire', date: 'Apr 15, 2026', duration: '0:45' },
   { id: 15, type: 'image', url: 'https://images.unsplash.com/photo-1517760444937-f6397edcbbcd?auto=format&fit=crop&w=600&q=80', location: 'Heading Home', date: 'Apr 16, 2026' }
 ]);
+const selectedMemory = ref(null);
+const fileInput = ref(null);
+
+const triggerUpload = () => {
+  fileInput.value.click();
+};
+
+const handleUpload = (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const type = file.type.startsWith('video') ? 'video' : 'image';
+  const url = URL.createObjectURL(file);
+  
+  const newMemory = {
+    id: Date.now(),
+    type,
+    url,
+    location: 'Current Trip',
+    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    duration: type === 'video' ? '0:00' : undefined
+  };
+
+  memories.value.unshift(newMemory);
+};
+
+const openFullscreen = (memory) => {
+  selectedMemory.value = memory;
+  document.body.style.overflow = 'hidden';
+};
+
+const closeFullscreen = () => {
+  selectedMemory.value = null;
+  document.body.style.overflow = '';
+};
 </script>
 
 <template>
@@ -120,7 +155,8 @@ const memories = ref([
             <h3 class="text-sm font-black text-[#D97736] uppercase tracking-[0.3em]">Group Memories</h3>
           </div>
           
-          <button class="flex items-center gap-2 bg-orange-50 text-lakbay-orange hover:bg-orange-100 px-5 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest border border-orange-100 transition-colors">
+          <input type="file" ref="fileInput" class="hidden" accept="image/*,video/*" @change="handleUpload" />
+          <button @click="triggerUpload" class="flex items-center gap-2 bg-orange-50 text-lakbay-orange hover:bg-orange-100 px-5 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest border border-orange-100 transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="3" stroke-linecap="round"/></svg>
             Add Memory
           </button>
@@ -128,7 +164,7 @@ const memories = ref([
 
         <div class="flex gap-6 overflow-x-auto custom-scrollbar pb-6 pt-2 px-2 -mx-2">
           
-          <div v-for="memory in memories" :key="memory.id" 
+          <div v-for="memory in memories" :key="memory.id" @click="openFullscreen(memory)"
                class="relative w-64 h-80 shrink-0 rounded-[2rem] overflow-hidden border-4 border-white shadow-lg group cursor-pointer hover:-translate-y-2 transition-transform duration-300">
             
             <img :src="memory.url" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
@@ -153,6 +189,25 @@ const memories = ref([
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- FULLSCREEN VIEWER -->
+  <div v-if="selectedMemory" class="fixed inset-0 z-[200] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 sm:p-10 animate-fade-in">
+    <button @click="closeFullscreen" class="absolute top-8 right-8 z-[210] p-4 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all border border-white/20">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+
+    <div class="max-w-5xl w-full h-full flex flex-col items-center justify-center relative">
+      <div class="w-full h-full flex items-center justify-center">
+        <video v-if="selectedMemory.type === 'video'" :src="selectedMemory.url" controls autoplay class="max-w-full max-h-[80vh] rounded-3xl shadow-2xl border-4 border-white/10"></video>
+        <img v-else :src="selectedMemory.url" class="max-w-full max-h-[80vh] rounded-3xl shadow-2xl object-contain border-4 border-white/10" />
+      </div>
+      
+      <div class="absolute bottom-0 left-0 right-0 text-center pb-10">
+        <h2 class="text-3xl font-black text-white mb-2 tracking-tighter">{{ selectedMemory.location }}</h2>
+        <p class="text-white/60 font-bold uppercase tracking-[0.2em] text-sm">{{ selectedMemory.date }}</p>
+      </div>
     </div>
   </div>
 </template>

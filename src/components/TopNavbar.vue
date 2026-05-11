@@ -4,6 +4,9 @@ import { ref } from 'vue'
 // This variable controls whether the mobile menu is open or closed
 const isMobileMenuOpen = ref(false)
 
+let user_fullname = localStorage.getItem('user_fullname') || 'Traveler';
+
+
 const toggleMobileMenu = () => {
   isMobileMenuOpen.value = !isMobileMenuOpen.value
 }
@@ -15,9 +18,17 @@ const toggleMobileMenu = () => {
       <div class="flex justify-between h-16 items-center">
         
         <div class="flex items-center">
-          <router-link to="/" class="text-xl sm:text-2xl font-serif font-bold text-[#2A8B8B] tracking-tight hover:opacity-80 transition shrink-0">
+          <div v-if="
+             user_fullname != null">
+            <div class="text-xl sm:text-2xl font-serif font-bold text-[#2A8B8B] tracking-tight hover:opacity-80 transition shrink-0">
+              Lakbay<span class="text-[#D97736]">+</span>
+            </div>
+          </div>
+          <div v-else>
+            <router-link to="/" class="text-xl sm:text-2xl font-serif font-bold text-[#2A8B8B] tracking-tight hover:opacity-80 transition shrink-0">
             Lakbay<span class="text-[#D97736]">+</span>
           </router-link>
+          </div>
         </div>
 
         <div class="hidden sm:flex items-center space-x-8">

@@ -72,28 +72,28 @@ const handleSaveAiTrip = (tripData) => {
   <div class="pb-24 pt-10 min-h-screen bg-[#F8FAFB]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-      <div class="bg-gradient-to-r from-[#2A8B8B] to-[#1e6666] rounded-[3rem] p-8 lg:p-12 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-8 mb-10 relative overflow-hidden">
+      <div class="bg-gradient-to-r from-[#2A8B8B] to-[#1e6666] rounded-2xl sm:rounded-[3rem] p-5 sm:p-8 lg:p-12 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8 mb-8 sm:mb-10 relative overflow-hidden">
         <div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-white opacity-10 blur-3xl"></div>
         
         <div class="md:w-1/2 relative z-10 text-center md:text-left">
-          <h2 class="text-3xl md:text-5xl font-black mb-3 flex items-center justify-center md:justify-start gap-3 tracking-tighter">Kamusta, {{ userName }}!</h2>
-          <p class="text-white/90 text-lg font-medium">Plan your next group adventure.</p>
+          <h2 class="text-2xl sm:text-4xl md:text-5xl font-black mb-2 sm:mb-3 flex items-center justify-center md:justify-start gap-3 tracking-tighter">Kamusta, {{ userName }}!</h2>
+          <p class="text-white/90 text-sm sm:text-lg font-medium">Plan your next group adventure.</p>
         </div>
         
         <div class="md:w-1/2 w-full max-w-lg relative z-10">
-          <div class="bg-white rounded-full p-2 flex flex-col sm:flex-row items-center shadow-2xl border-4 border-white/20 gap-2 sm:gap-0 focus-within:ring-4 focus-within:ring-[#D97736]/30 transition-all">
+          <div class="bg-white rounded-2xl sm:rounded-full p-1.5 sm:p-2 flex flex-col sm:flex-row items-center shadow-2xl border-4 border-white/20 gap-2 sm:gap-0 focus-within:ring-4 focus-within:ring-[#D97736]/30 transition-all">
             
             <input 
               v-model="aiSearchQuery"
               @keyup.enter="handleAskAI"
               type="text" 
               placeholder="E.g., 3 days in Palawan for 4 people..." 
-              class="flex-grow w-full bg-transparent border-none outline-none px-6 py-3 sm:py-0 text-gray-800 font-bold placeholder-gray-400 text-center sm:text-left"
+              class="flex-grow w-full bg-transparent border-none outline-none px-4 sm:px-6 py-2.5 sm:py-0 text-gray-800 font-bold placeholder-gray-400 text-center sm:text-left text-xs sm:text-sm"
             >
             
             <button 
               @click="handleAskAI"
-              class="w-full sm:w-auto bg-[#D97736] text-white text-sm font-black uppercase tracking-widest py-4 px-8 rounded-full hover:bg-[#c4682c] hover:scale-105 transition-all shadow-md whitespace-nowrap shrink-0 flex items-center justify-center gap-2"
+              class="w-full sm:w-auto bg-[#D97736] text-white text-[10px] sm:text-sm font-black uppercase tracking-widest py-3 sm:py-4 px-6 sm:px-8 rounded-xl sm:rounded-full hover:bg-[#c4682c] hover:scale-105 transition-all shadow-md whitespace-nowrap shrink-0 flex items-center justify-center gap-2"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path>
@@ -112,8 +112,8 @@ const handleSaveAiTrip = (tripData) => {
 
       <div class="mb-12">
         <h3 class="text-lg sm:text-2xl text-[#2A8B8B] font-bold mb-4 sm:mb-6">Suggested Destinations</h3>
-        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
-          <div v-for="dest in destinations" :key="dest.id" @click="openDetails(dest)" class="bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow border border-gray-100 group cursor-pointer">
+        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-6">
+          <div v-for="dest in destinations" :key="dest.id" @click="openDetails(dest)" class="bg-white rounded-lg sm:rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow border border-gray-100 group cursor-pointer">
             <div class="relative h-28 sm:h-48">
               <img :src="dest.image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
               <span class="absolute top-2 right-2 sm:top-3 sm:right-3 bg-[#2A8B8B] text-white text-[9px] sm:text-xs font-bold px-2 py-1 sm:px-3 sm:py-1.5 rounded-full shadow-md">{{ dest.match }} match</span>
