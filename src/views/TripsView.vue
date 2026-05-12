@@ -63,16 +63,27 @@ const openReceipt = (trip) => {
         <div v-for="trip in filteredTrips" :key="trip.id" class="bg-white rounded-lg sm:rounded-3xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition flex flex-col h-full group">
           <div class="w-full h-28 sm:h-48 relative shrink-0 overflow-hidden">
             <img :src="trip.image" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-            <span :class="[
-              'absolute top-2 left-2 sm:top-3 sm:left-3 backdrop-blur-md text-white text-[8px] sm:text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 sm:px-3 sm:py-1 rounded-full',
-              trip.status === 'Completed' ? 'bg-green-600/60' : trip.status === 'Ongoing' ? 'bg-blue-600/60' : 'bg-orange-600/60'
-            ]">{{ trip.status }}</span>
           </div>
 
           <div class="p-2.5 sm:p-5 flex flex-grow flex-col justify-between">
-            <div>
-              <h3 class="font-bold text-gray-800 text-sm sm:text-lg mb-0.5 sm:mb-1 truncate">{{ trip.title }}</h3>
+            <div class="min-w-0">
+              <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-2 sm:mb-3">
+                <h3 class="font-bold text-gray-800 text-sm sm:text-lg break-words flex-grow">{{ trip.title }}</h3>
+                <span :class="[
+                  'shrink-0 self-start text-[7px] sm:text-[9px] uppercase tracking-wider font-black px-2 py-0.5 sm:px-3 sm:py-1 rounded-full shadow-sm',
+                  trip.status === 'Completed' ? 'bg-green-100 text-green-700' : trip.status === 'Ongoing' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-[#D97736]'
+                ]">{{ trip.status }}</span>
+              </div>
               <p class="text-[10px] sm:text-xs text-gray-500 mb-2 sm:mb-4">{{ trip.date }}</p>
+              
+              <div class="flex items-center gap-2 mb-3 sm:mb-4">
+                <div class="flex -space-x-2">
+                  <img v-for="(member, idx) in trip.members.slice(0, 3)" :key="idx" :src="member.avatar" 
+                    class="w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 border-white object-cover shadow-sm" />
+                </div>
+                <span v-if="trip.members.length > 3" class="text-[9px] sm:text-[10px] font-black text-gray-400">+{{ trip.members.length - 3 }}</span>
+              </div>
+
               <div class="mb-2 sm:mb-4">
                 <div class="flex justify-between text-[10px] sm:text-xs mb-1">
                   <span class="font-semibold text-gray-600">Budget Progress</span>

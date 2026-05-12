@@ -12,9 +12,20 @@ const fullName = ref('') // Added for potential future use (backend currently on
 const errorMessage = ref('')
 const isLoading = ref(false)
 
+const validateEmail = (val) => {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(val);
+};
+
 const handleSubmit = async () => {
   isLoading.value = true
   errorMessage.value = ''
+  
+  if (!validateEmail(email.value)) {
+    errorMessage.value = "Invalid user"
+    isLoading.value = false
+    return
+  }
   
   try {
     if (isRegister.value) {
@@ -68,9 +79,9 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center p-4 sm:p-8 bg-[#F4EBE1] font-sans">
+  <div class="min-h-screen flex items-center justify-center p-6 sm:p-10 bg-[#F4EBE1] font-sans">
     
-    <div class="w-full max-w-5xl bg-white rounded-[2rem] shadow-2xl flex flex-col lg:flex-row overflow-hidden ring-1 ring-gray-900/5">
+    <div class="w-[92%] max-w-[440px] lg:max-w-5xl bg-white rounded-[2.5rem] shadow-2xl flex flex-col lg:flex-row overflow-hidden ring-1 ring-gray-900/5 animate-fade-in">
       
       <div class="hidden lg:flex lg:w-1/2 relative bg-[#2A8B8B] items-center justify-center overflow-hidden">
         <div class="absolute inset-0 bg-black/30 z-10"></div>
@@ -82,9 +93,9 @@ const handleSubmit = async () => {
         </div>
       </div>
 
-      <div class="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 relative">
+      <div class="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 relative">
         <!-- Loading Overlay -->
-        <div v-if="isLoading" class="absolute inset-0 bg-white/80 z-50 flex flex-col items-center justify-center rounded-[2rem]">
+        <div v-if="isLoading" class="absolute inset-0 bg-white/80 z-50 flex flex-col items-center justify-center rounded-[2.5rem]">
           <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#D97736]"></div>
           <span class="mt-4 text-[#D97736] font-bold">Authenticating securely...</span>
         </div>

@@ -1,9 +1,12 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import InviteMemberModal from '@/components/modals/InviteMember.vue';
 
 const props = defineProps({
   trip: Object
 });
+
+const isInviteOpen = ref(false);
 
 const members = computed(() => {
   return props.trip?.members || [
@@ -16,11 +19,13 @@ const members = computed(() => {
   <div class="w-full space-y-6">
     <div class="flex justify-between items-center mb-2">
       <h2 class="text-xl font-bold text-[#2A8B8B]">Trip Members ({{ members.length }})</h2>
-      <button class="bg-[#2A8B8B] text-white font-bold py-2 px-5 rounded-full hover:bg-[#217070] transition shadow-md text-sm flex items-center gap-2">
+      <button @click="isInviteOpen = true" class="bg-[#2A8B8B] text-white font-bold py-2 px-5 rounded-full hover:bg-[#217070] transition shadow-md text-sm flex items-center gap-2">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
         Invite
       </button>
     </div>
+
+    <InviteMemberModal :is-open="isInviteOpen" :trip-name="trip?.title" @close="isInviteOpen = false" />
 
     <div class="grid grid-cols-1 gap-3">
       <div v-for="member in members" :key="member.id" 

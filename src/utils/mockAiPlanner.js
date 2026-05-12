@@ -101,8 +101,26 @@ function genTasks(seed, members) {
 function genBudget(seed, memberCount) {
   const total = seededInt(seed, 8, 50, 70) * 1000;
   const percentSpent = seededInt(seed, 10, 75, 71);
-  const spent = Math.round(total * percentSpent / 100);
-  return { total: fmt(total), spent: fmt(spent), remaining: fmt(total - spent), percentSpent, members: memberCount };
+  const spentTotal = Math.round(total * percentSpent / 100);
+  
+  // Categorical breakdown
+  const accommodation = Math.round(spentTotal * 0.4);
+  const food = Math.round(spentTotal * 0.3);
+  const transport = Math.round(spentTotal * 0.2);
+  const activities = spentTotal - (accommodation + food + transport);
+
+  return { 
+    total: fmt(total), 
+    spent: fmt(spentTotal), 
+    spentRaw: spentTotal,
+    remaining: fmt(total - spentTotal), 
+    percentSpent, 
+    members: memberCount,
+    accommodation,
+    food,
+    transport,
+    activities
+  };
 }
 
 function genItinerary(seed, spots, loc) {

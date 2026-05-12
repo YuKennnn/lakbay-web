@@ -1,32 +1,98 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router'
 
 const user = ref({
   name: 'Traveler',
   email: 'travelling@lakbay.app',
-  // Placeholder image for the profile picture
-  //  q
+  avatar: 'https://i.pravatar.cc/150?u=traveller',
+  bio: 'Exploring the world one beach at a time. 🏖️',
+  phone: '+63 912 345 6789',
+  address: 'Metro Manila, Philippines',
+  isPremium: false
 });
+
+// Modal states
+const activeModal = ref(null); // 'edit', 'notifications', 'subscription'
+const fileInput = ref(null);
+const showError = ref(false);
+
+const validateEmail = (val) => {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(val);
+};
+
+const notifications = ref([
+  { id: 1, title: 'Flight Update', body: 'Your flight to Boracay is on schedule.', time: '2h ago', type: 'info', icon: '✈️' },
+  { id: 2, title: 'New Memory', body: 'Sarah added a photo to "Island Squad" memories.', time: '5h ago', type: 'social', icon: '📸' },
+  { id: 3, title: 'Plan Reminder', body: 'Time to check in for your hotel in Samal.', time: '1d ago', type: 'alert', icon: '🏨' },
+]);
 
 onMounted(() => {
   user.value.name = localStorage.getItem('user_fullname') || 'Traveler';
-  user.value.email = localStorage.getItem('user_email') || 'Unknown';
+  user.value.email = localStorage.getItem('user_email') || 'travelling@lakbay.app';
+  const storedAvatar = localStorage.getItem('user_avatar');
+  if (storedAvatar) user.value.avatar = storedAvatar;
+});
+
+// Scroll Lock logic (same as GroupsView for consistency)
+watch(activeModal, (val) => {
+  if (val) {
+    const scrollY = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+    document.documentElement.style.overflow = 'hidden';
+  } else {
+    const scrollY = document.body.style.top;
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
+    document.documentElement.style.overflow = '';
+    window.scrollTo(0, parseInt(scrollY || '0') * -1);
+  }
 });
 
 const router = useRouter()
 
 const handleSignOut = () => {
-  // 1. Clear any user data/tokens here (e.g., localStorage.clear())
   localStorage.removeItem('access_token')
-  console.log("User signed out!")
-  
-  // 2. Push them back to the landing page
   router.push('/')
 }
 
-// Settings options array dynamically rendering the alternating colors from your design
-// Settings options array dynamically rendering the alternating colors
+const triggerFileUpload = () => {
+  fileInput.value.click();
+};
+
+const handleFileUpload = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      user.value.avatar = e.target.result;
+      localStorage.setItem('user_avatar', e.target.result);
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+const saveProfile = () => {
+  if (!validateEmail(user.value.email)) {
+    showError.value = true;
+    setTimeout(() => showError.value = false, 3000);
+    return;
+  }
+  localStorage.setItem('user_fullname', user.value.name);
+  localStorage.setItem('user_email', user.value.email);
+  activeModal.value = null;
+};
+
+const handleOptionClick = (title) => {
+  if (title === 'Edit Profile') activeModal.value = 'edit';
+  else if (title === 'Notifications') activeModal.value = 'notifications';
+  else if (title === 'My Subscriptions') activeModal.value = 'subscription';
+};
+
 const settingsOptions = ref([
   { 
     id: 1, title: 'Edit Profile', desc: 'Update your personal information', 
@@ -63,6 +129,9 @@ const settingsOptions = ref([
 
 <template>
   <div class="pb-24 pt-8 min-h-screen bg-[#F8FAFB] relative overflow-hidden">
+    <!-- Hidden File Input -->
+    <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="handleFileUpload">
+
     <!-- Decorative Background Blobs -->
     <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-lakbay-teal/5 rounded-full blur-[120px] -mr-64 -mt-64"></div>
     <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-lakbay-orange/5 rounded-full blur-[100px] -ml-32 -mb-32"></div>
@@ -76,7 +145,7 @@ const settingsOptions = ref([
           <div class="absolute top-0 right-0 -mr-16 -mt-16 w-80 h-80 rounded-full bg-white opacity-20 blur-3xl"></div>
           <div class="absolute bottom-0 left-1/4 w-60 h-60 rounded-full bg-lakbay-orange opacity-30 blur-2xl"></div>
           
-          <button class="absolute top-6 right-6 bg-white/20 hover:bg-white/40 backdrop-blur-xl text-white p-3 rounded-2xl transition duration-300 border border-white/30 shadow-lg">
+          <button @click="triggerFileUpload" class="absolute top-6 right-6 bg-white/20 hover:bg-white/40 backdrop-blur-xl text-white p-3 rounded-2xl transition duration-300 border border-white/30 shadow-lg">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path></svg>
           </button>
         </div>
@@ -85,21 +154,21 @@ const settingsOptions = ref([
           
           <div class="relative shrink-0">
             <img :src="user.avatar" alt="Profile" class="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-white shadow-md object-cover bg-white" />
-            <button class="absolute bottom-2 right-2 bg-lakbay-orange text-white p-2 rounded-full shadow-lg hover:scale-105 transition border-2 border-white">
+            <button @click="triggerFileUpload" class="absolute bottom-2 right-2 bg-lakbay-orange text-white p-2 rounded-full shadow-lg hover:scale-105 transition border-2 border-white">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
             </button>
           </div>
 
-          <div class="text-center sm:text-left mb-2 sm:mb-4 flex-grow">
-            <h1 class="text-3xl sm:text-4xl font-bold text-lakbay-teal tracking-tight">{{ user.name }}</h1>
-            <p class="text-gray-500 font-medium mt-1">{{ user.email }}</p>
+          <div class="text-center sm:text-left mb-2 sm:mb-4 flex-grow min-w-0">
+            <h1 class="text-3xl sm:text-4xl font-black text-lakbay-teal tracking-tight break-words leading-tight">{{ user.name }}</h1>
+            <p class="text-gray-500 font-bold mt-1 break-words">{{ user.email }}</p>
           </div>
 
           <div class="hidden sm:flex gap-3 mb-4">
-            <button class="bg-white border border-gray-200 text-gray-700 font-semibold py-2.5 px-6 rounded-full hover:bg-gray-50 transition shadow-sm text-sm">
+            <button class="bg-white border border-gray-200 text-gray-700 font-bold py-2.5 px-6 rounded-full hover:bg-gray-50 transition shadow-sm text-sm">
               Share Profile
             </button>
-            <button @click="handleSignOut" class="bg-lakbay-orange text-white font-bold py-2.5 px-8 rounded-full hover:bg-[#c4682c] transition shadow-md text-sm">
+            <button @click="handleSignOut" class="bg-lakbay-orange text-white font-black py-2.5 px-8 rounded-full hover:bg-[#c4682c] transition shadow-md text-sm">
               Sign Out
             </button>
           </div>
@@ -107,11 +176,12 @@ const settingsOptions = ref([
       </div>
 
       <div>
-        <h2 class="text-2xl font-bold text-gray-800 mb-6 pl-2">Account Settings</h2>
+        <h2 class="text-2xl font-black text-gray-800 mb-6 pl-2 tracking-tight">Account Settings</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           
           <div v-for="option in settingsOptions" :key="option.id" 
+               @click="handleOptionClick(option.title)"
                :class="[
                  `border-2 rounded-[2rem] p-6 flex items-center gap-5 cursor-pointer transition-all duration-300 group bg-white shadow-sm hover:shadow-xl`,
                  option.theme === 'orange' ? 'border-orange-50 hover:border-lakbay-orange/30 hover:shadow-orange-100/50' : 'border-teal-50 hover:border-lakbay-teal/30 hover:shadow-teal-100/50'
@@ -125,8 +195,8 @@ const settingsOptions = ref([
             </div>
 
             <div class="flex-grow">
-              <h3 class="font-black text-lg mb-0.5 tracking-tight" :class="option.theme === 'orange' ? 'text-gray-800' : 'text-gray-800'">{{ option.title }}</h3>
-              <p class="text-xs font-medium text-gray-400">{{ option.desc }}</p>
+              <h3 class="font-black text-lg mb-0.5 tracking-tight text-gray-800">{{ option.title }}</h3>
+              <p class="text-xs font-bold text-gray-400">{{ option.desc }}</p>
             </div>
 
             <div class="shrink-0 transition-transform duration-300 group-hover:translate-x-1" :class="option.theme === 'orange' ? 'text-lakbay-orange' : 'text-lakbay-teal'">
@@ -137,11 +207,131 @@ const settingsOptions = ref([
 
         </div>
 
-        <button @click="handleSignOut" class="sm:hidden w-full mt-8 bg-red-50 text-red-600 border border-red-100 font-bold py-3.5 rounded-xl hover:bg-red-100 transition shadow-sm">
+        <button @click="handleSignOut" class="sm:hidden w-full mt-8 bg-red-50 text-red-600 border border-red-100 font-black py-4 rounded-2xl hover:bg-red-100 transition shadow-sm">
           Sign Out
         </button>
 
       </div>
     </div>
+
+    <!-- Modals (Teleported) -->
+    <Teleport to="body">
+      <!-- Edit Profile Modal -->
+      <div v-if="activeModal === 'edit'" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
+        <div class="absolute inset-0 bg-[#F8FAFB]/60 backdrop-blur-3xl animate-fade-in touch-none" @click="activeModal = null"></div>
+        <div class="bg-white w-[92%] max-w-[500px] max-h-[90vh] rounded-[2.5rem] sm:rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] relative z-10 animate-slide-up border border-white/80 overflow-y-auto custom-scrollbar">
+          <div class="p-8 sm:p-10">
+            <div class="flex justify-between items-start mb-8">
+              <div>
+                <h3 class="text-3xl font-black text-lakbay-teal tracking-tight">Edit Profile</h3>
+                <p class="text-gray-500 text-sm mt-1">Keep your information up to date.</p>
+              </div>
+              <button @click="activeModal = null" class="p-2 hover:bg-gray-100 rounded-full transition">
+                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2.5" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+
+            <div class="space-y-5">
+              <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Full Name</label>
+                <input v-model="user.name" type="text" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:border-lakbay-teal transition font-bold text-gray-700">
+              </div>
+              <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Email Address</label>
+                <input v-model="user.email" type="email" 
+                  :class="[
+                    'w-full bg-gray-50 border-2 rounded-2xl py-4 px-6 outline-none transition font-bold text-gray-700',
+                    showError ? 'border-red-400' : 'border-gray-100 focus:border-lakbay-teal'
+                  ]">
+                <p v-if="showError" class="text-[10px] text-red-500 font-bold mt-2 ml-1 animate-pulse">Invalid user</p>
+              </div>
+              <div>
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Bio</label>
+                <textarea v-model="user.bio" rows="3" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:border-lakbay-teal transition font-bold text-gray-700 resize-none"></textarea>
+              </div>
+              <button @click="saveProfile" class="w-full bg-lakbay-teal text-white font-black py-4 rounded-2xl shadow-lg shadow-teal-100 hover:bg-[#237777] transition-all mt-4 text-lg">
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notifications Modal -->
+      <div v-if="activeModal === 'notifications'" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
+        <div class="absolute inset-0 bg-[#F8FAFB]/60 backdrop-blur-3xl animate-fade-in touch-none" @click="activeModal = null"></div>
+        <div class="bg-white w-[92%] max-w-[500px] max-h-[90vh] rounded-[2.5rem] sm:rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] relative z-10 animate-slide-up border border-white/80 overflow-y-auto custom-scrollbar">
+          <div class="p-8 sm:p-10">
+            <div class="flex justify-between items-start mb-8">
+              <div>
+                <h3 class="text-3xl font-black text-lakbay-teal tracking-tight">Notifications</h3>
+                <p class="text-gray-500 text-sm mt-1">Stay updated on your adventures.</p>
+              </div>
+              <button @click="activeModal = null" class="p-2 hover:bg-gray-100 rounded-full transition">
+                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2.5" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+
+            <div class="space-y-4">
+              <div v-for="notif in notifications" :key="notif.id" class="p-5 rounded-3xl bg-gray-50 border border-gray-100 hover:border-lakbay-teal/30 transition-all group">
+                <div class="flex gap-4">
+                  <div class="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-2xl shrink-0">
+                    {{ notif.icon }}
+                  </div>
+                  <div>
+                    <h4 class="font-black text-gray-800">{{ notif.title }}</h4>
+                    <p class="text-sm text-gray-500 font-bold mt-0.5">{{ notif.body }}</p>
+                    <span class="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-2 block">{{ notif.time }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subscription Modal -->
+      <div v-if="activeModal === 'subscription'" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6">
+        <div class="absolute inset-0 bg-[#F8FAFB]/60 backdrop-blur-3xl animate-fade-in touch-none" @click="activeModal = null"></div>
+        <div class="bg-white w-[92%] max-w-[500px] max-h-[90vh] rounded-[2.5rem] sm:rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] relative z-10 animate-slide-up border border-white/80 overflow-y-auto custom-scrollbar">
+          <div class="p-8 sm:p-10 text-center">
+            <div class="w-20 h-20 bg-orange-50 text-lakbay-orange rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner">
+              <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z"></path></svg>
+            </div>
+            <h3 class="text-3xl font-black text-gray-800 tracking-tight mb-2">Lakbay+ Premium</h3>
+            <p class="text-gray-500 font-bold mb-8">Unlock exclusive travel planning tools and AI insights.</p>
+
+            <div class="bg-teal-50 rounded-3xl p-6 border-2 border-lakbay-teal/10 mb-8">
+              <div class="flex justify-between items-center mb-4">
+                <span class="font-black text-lakbay-teal uppercase tracking-widest text-xs">Current Plan</span>
+                <span class="bg-white px-3 py-1 rounded-full text-[10px] font-black text-gray-400 border border-gray-100">FREE</span>
+              </div>
+              <p class="text-left text-sm text-gray-600 font-bold">Standard features enabled. Upgrade for premium perks!</p>
+            </div>
+
+            <button class="w-full bg-lakbay-orange text-white font-black py-4 rounded-2xl shadow-lg shadow-orange-100 hover:bg-[#c4682c] transition-all text-lg mb-4">
+              Upgrade Now — $9.99/mo
+            </button>
+            <button @click="activeModal = null" class="text-gray-400 font-bold text-sm hover:text-gray-600 transition">Maybe later</button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #E2E8F0;
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #CBD5E1;
+}
+</style>

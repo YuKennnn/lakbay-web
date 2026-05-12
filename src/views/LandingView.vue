@@ -186,7 +186,7 @@
         <h2 class="text-4xl font-black text-gray-900 mb-6">Ready to create unforgettable memories?</h2>
         <p class="text-xl text-gray-500 mb-10">Join thousands of travelers planning smarter trips.</p>
         <router-link to="/login" class="bg-[#D97736] hover:bg-[#c4682c] text-white px-10 py-5 rounded-full font-black text-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all inline-block">
-          Launch App Now
+          Try Now
         </router-link>
       </div>
     </section>
