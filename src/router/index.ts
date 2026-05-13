@@ -7,22 +7,24 @@ import ProfileView from '../views/ProfileView.vue'
 import SubscriptionView from '../views/SubscriptionView.vue'
 import UserReviews from '@/views/UserReviews.vue'
 
+let user_fullname = localStorage.getItem('user_fullname') || 'Traveler';
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    { 
-      path: '/', 
-      name: 'Landing', 
-      component: LandingView 
+    {
+      path: '/',
+      name: 'Landing',
+      component: LandingView
     },
-    { 
-      path: '/login', 
-      name: 'Login', 
-      component: Authentication 
+    {
+      path: '/login',
+      name: 'Login',
+      component: Authentication
     },
-    { 
-      path: '/plan', 
-      name: 'Plan', 
+    {
+      path: '/plan',
+      name: 'Plan',
       component: PlanView,
       meta: { requiresAuth: true }
     },
@@ -32,40 +34,46 @@ const router = createRouter({
       component: UserReviews,
       meta: { requiresAuth: true }
     },
-    { 
-      path: '/trips', 
-      name: 'Trips', 
+    {
+      path: '/trips',
+      name: 'Trips',
       component: TripsView,
       meta: { requiresAuth: true }
     },
-    { 
-      path: '/profile', 
-      name: 'Profile', 
+    {
+      path: '/profile',
+      name: 'Profile',
       component: ProfileView,
       meta: { requiresAuth: true }
     },
-    { 
-      path: '/subscription', 
-      name: 'Subscription', 
+    {
+      path: '/subscription',
+      name: 'Subscription',
       component: SubscriptionView,
       meta: { requiresAuth: true }
     },
-    { 
-      path: '/groups', 
-      name: 'Groups', 
+    {
+      path: '/groups',
+      name: 'Groups',
       component: () => import('@/views/GroupsView.vue'),
       meta: { requiresAuth: true }
     },
-    { 
-      path: '/groups/:id', 
-      name: 'GroupDetails', 
+    {
+      path: '/groups/:id',
+      name: 'GroupDetails',
       component: () => import('@/views/GroupDetailsView.vue'),
       meta: { requiresAuth: true }
     },
-    { 
-      path: '/trip_details', 
+    {
+      path: '/trip_details',
       name: 'TripDetails',
       component: () => import('@/views/TripDetailsView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/payment',
+      name: 'Payment',
+      component: () => import('@/views/PaymentView.vue'),
       meta: { requiresAuth: true }
     }
   ]
@@ -78,7 +86,11 @@ router.beforeEach((to, from, next) => {
     next('/login')
   } else if (to.path === '/login' && isAuthenticated) {
     next('/plan')
-  } else {
+  }
+  else if (to.path === '/' && isAuthenticated) {
+    next('/plan')
+  }
+  else {
     next()
   }
 })

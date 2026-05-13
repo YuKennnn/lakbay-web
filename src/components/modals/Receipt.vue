@@ -25,14 +25,14 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-[150] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-    <div class="bg-white w-full max-w-md rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] animate-slide-up relative">
+  <div v-if="isOpen" class="fixed inset-0 z-[150] flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 sm:p-4 animate-fade-in">
+    <div class="bg-white w-[94%] sm:w-full max-w-[350px] sm:max-w-md rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[90vh] animate-slide-up relative">
       
       <!-- Receipt Header Area -->
-      <div class="p-6 border-b border-dashed border-gray-300 flex justify-between items-start bg-amber-50/50">
+      <div class="p-4 sm:p-6 border-b border-dashed border-gray-300 flex justify-between items-start bg-amber-50/50">
         <div>
-          <h3 class="font-black text-gray-800 text-xl uppercase tracking-widest">Receipt</h3>
-          <p class="text-xs text-gray-500 font-medium mt-1">Transaction #{{ Math.floor(Math.random() * 90000) + 10000 }}</p>
+          <h3 class="font-black text-gray-800 text-lg sm:text-xl uppercase tracking-widest">Receipt</h3>
+          <p class="text-[10px] sm:text-xs text-gray-500 font-medium mt-1">Transaction #{{ Math.floor(Math.random() * 90000) + 10000 }}</p>
         </div>
         <button @click="$emit('close')" class="bg-white p-2 rounded-full shadow-sm hover:bg-gray-50 transition border border-gray-100">
           <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,12 +42,12 @@ onUnmounted(() => {
       </div>
 
       <!-- Receipt Content -->
-      <div class="overflow-y-auto flex-grow p-8 bg-amber-50/50 custom-scrollbar font-mono text-sm text-gray-700">
+      <div class="overflow-y-auto flex-grow p-6 sm:p-8 bg-amber-50/50 custom-scrollbar font-mono text-[13px] sm:text-sm text-gray-700">
         
         <div class="text-center mb-6">
-          <h2 class="font-bold text-lg text-gray-900">{{ trip?.title || 'Trip Receipt' }}</h2>
-          <p class="text-xs text-gray-500">{{ trip?.location || 'Location' }}</p>
-          <p class="text-xs text-gray-500 mt-1">{{ trip?.date || 'Date' }}</p>
+          <h2 class="font-bold text-base sm:text-lg text-gray-900 leading-tight">{{ trip?.title || 'Trip Receipt' }}</h2>
+          <p class="text-[11px] sm:text-xs text-gray-500">{{ trip?.location || 'Location' }}</p>
+          <p class="text-[11px] sm:text-xs text-gray-500 mt-1">{{ trip?.date || 'Date' }}</p>
         </div>
 
         <div class="border-t border-dashed border-gray-300 py-4 space-y-3">
@@ -85,7 +85,7 @@ onUnmounted(() => {
         </div>
 
         <div class="border-t-2 border-gray-800 py-4">
-          <div class="flex justify-between items-center font-bold text-lg text-gray-900">
+          <div class="flex justify-between items-center font-bold text-base sm:text-lg text-gray-900">
             <span>TOTAL SPENT</span>
             <span>{{ trip?.spent || '₱25,550' }}</span>
           </div>
@@ -104,11 +104,11 @@ onUnmounted(() => {
       </div>
 
       <!-- Footer Buttons -->
-      <div class="p-6 border-t border-dashed border-gray-300 flex gap-3 bg-amber-50/50">
-        <button @click="downloadPdf" class="flex-1 bg-white border border-gray-200 py-3.5 rounded-xl font-bold text-gray-600 hover:bg-gray-50 transition shadow-sm text-sm">
+      <div class="p-4 sm:p-6 border-t border-dashed border-gray-300 flex gap-3 bg-amber-50/50">
+        <button @click="downloadPdf" class="flex-1 bg-white border border-gray-200 py-3 sm:py-3.5 rounded-xl font-bold text-gray-600 hover:bg-gray-50 transition shadow-sm text-xs sm:text-sm">
           Print PDF
         </button>
-        <button class="flex-1 bg-[#D97736] text-white py-3.5 rounded-xl font-bold shadow-md hover:bg-[#c4682c] hover:-translate-y-0.5 transition-all text-sm">
+        <button class="flex-1 bg-[#D97736] text-white py-3 sm:py-3.5 rounded-xl font-bold shadow-md hover:bg-[#c4682c] hover:-translate-y-0.5 transition-all text-xs sm:text-sm">
           Share Receipt
         </button>
       </div>
