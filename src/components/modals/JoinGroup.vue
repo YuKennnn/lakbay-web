@@ -61,7 +61,7 @@ onUnmounted(() => {
     
     <div class="bg-white w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl animate-slide-up relative z-10 max-h-[90vh] flex flex-col">
       
-      <div class="bg-gradient-to-r from-[#D97736] to-[#e68a4d] px-8 py-6 flex justify-between items-center text-white shrink-0">
+      <div class="bg-gradient-to-r from-[#2A8B8B] to-[#1e6666] px-8 py-6 flex justify-between items-center text-white shrink-0">
         <div>
           <h3 class="font-black text-xl tracking-tight">Join Group</h3>
           <p class="text-[10px] uppercase tracking-widest font-bold opacity-80">Enter your adventure code</p>
@@ -74,14 +74,11 @@ onUnmounted(() => {
       <div class="p-8 overflow-y-auto custom-scrollbar">
         <div v-if="!isSuccess">
           <div class="flex items-center gap-2 mb-4">
-            <div class="w-6 h-6 flex items-center justify-center bg-gray-100 rounded-lg">
-              <span class="text-gray-400 font-black text-xs">#</span>
-            </div>
-            <label class="font-black text-gray-700 text-xs uppercase tracking-wider">Group Code</label>
+            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-1">Group Code</label>
           </div>
           
           <div class="flex gap-3 mb-8">
-            <div class="relative flex-grow">
+            <div class="relative flex-grow group">
               <input 
                 v-model="groupCode"
                 type="text" 
@@ -104,8 +101,8 @@ onUnmounted(() => {
           </div>
 
           <button class="w-full border-2 border-gray-100 bg-white text-gray-700 font-black py-4 rounded-2xl shadow-sm hover:border-[#2A8B8B]/30 hover:bg-gray-50 transition flex justify-center items-center gap-3 mb-6 group">
-            <div class="p-1.5 bg-gray-100 rounded-lg group-hover:bg-[#2A8B8B]/10 transition">
-              <svg class="w-4 h-4 text-gray-400 group-hover:text-[#2A8B8B]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+            <div class="p-1.5 bg-gray-100 rounded-lg group-hover:bg-[#2A8B8B]/10 transition text-gray-400 group-hover:text-[#2A8B8B]">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
             </div>
             <span class="text-sm">Join via Magic Link</span>
           </button>
@@ -113,13 +110,13 @@ onUnmounted(() => {
           <button 
             @click="handleJoin"
             :disabled="!groupCode || isJoining"
-            class="w-full bg-[#2A8B8B] text-white font-black py-4 rounded-2xl shadow-lg shadow-teal-100 hover:bg-[#217070] hover:-translate-y-1 transition-all disabled:opacity-50 disabled:translate-y-0 disabled:shadow-none flex justify-center items-center gap-3"
+            class="w-full bg-[#2A8B8B] text-white font-black py-4.5 rounded-2xl shadow-xl shadow-teal-100 hover:bg-[#217070] hover:-translate-y-1 transition-all disabled:opacity-50 disabled:translate-y-0 disabled:shadow-none flex justify-center items-center gap-3"
           >
             <svg v-if="isJoining" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <span class="text-sm">{{ isJoining ? 'Finding Adventure...' : 'Join Adventure' }}</span>
+            <span class="text-xs uppercase tracking-widest">{{ isJoining ? 'Finding Adventure...' : 'Join Adventure' }}</span>
           </button>
         </div>
 
@@ -133,8 +130,8 @@ onUnmounted(() => {
         </div>
 
         <div class="border-t border-gray-100 mt-8 pt-8">
-          <p class="text-center text-xs text-gray-400 font-black uppercase tracking-widest mb-4">Planning your own?</p>
-          <button class="w-full bg-orange-50 text-[#D97736] font-black py-4 rounded-2xl border-2 border-orange-100 hover:bg-orange-100 transition-colors flex justify-center items-center gap-2 text-sm">
+          <p class="text-center text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mb-4">Planning your own?</p>
+          <button class="w-full bg-orange-50 text-[#D97736] font-black py-4 rounded-2xl border-2 border-orange-100 hover:bg-orange-100 transition-colors flex justify-center items-center gap-2 text-xs uppercase tracking-widest">
             Generate Host Link
           </button>
         </div>

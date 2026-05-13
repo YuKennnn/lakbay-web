@@ -13,7 +13,7 @@ const user = ref({
 });
 
 // Modal states
-const activeModal = ref(null); // 'edit', 'notifications', 'subscription'
+const activeModal = ref(null); // 'edit', 'notifications', 'subscription', 'signout'
 const fileInput = ref(null);
 const showError = ref(false);
 
@@ -60,6 +60,10 @@ watch(activeModal, (val) => {
 const router = useRouter()
 
 const handleSignOut = () => {
+  activeModal.value = 'signout';
+}
+
+const confirmSignOut = () => {
   localStorage.removeItem('access_token')
   router.push('/')
 }
@@ -320,10 +324,35 @@ const settingsOptions = ref([
               <p class="text-left text-sm text-gray-600 font-bold">Standard features enabled. Upgrade for premium perks!</p>
             </div>
 
-            <button class="w-full bg-[#D97736] text-white font-bold py-4 rounded-2xl shadow-lg shadow-orange-100 hover:bg-[#c4682c] transition-all text-lg mb-4">
+            <button @click="router.push('/payment')" class="w-full bg-[#D97736] text-white font-black py-4.5 rounded-2xl shadow-xl shadow-orange-100 hover:bg-[#c4682c] hover:-translate-y-1 transition-all text-sm uppercase tracking-widest mb-4">
               Upgrade Now — $9.99/mo
             </button>
-            <button @click="activeModal = null" class="text-gray-400 font-bold text-sm hover:text-gray-600 transition">Maybe later</button>
+            <button @click="activeModal = null" class="text-gray-400 font-black text-xs uppercase tracking-widest hover:text-gray-600 transition">Maybe later</button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Sign Out Confirmation Modal -->
+    <Teleport to="body">
+      <div v-if="activeModal === 'signout'" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300" @click="activeModal = null"></div>
+        <div class="bg-white w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl animate-fade-in relative z-10">
+          <div class="bg-gradient-to-r from-[#2A8B8B] to-[#1e6666] px-8 py-6 text-white text-center">
+            <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">👋</div>
+            <h3 class="font-black text-xl tracking-tight">Ready to leave?</h3>
+            <p class="text-[10px] uppercase tracking-widest font-bold opacity-80">We'll miss you, {{ user.name }}!</p>
+          </div>
+          <div class="p-8 text-center">
+            <p class="text-gray-500 font-bold mb-8">Are you sure you want to sign out? Your travel plans will be waiting for you when you return.</p>
+            <div class="flex flex-col gap-3">
+              <button @click="confirmSignOut" class="w-full bg-[#D97736] text-white font-black py-4 rounded-2xl shadow-xl shadow-orange-100 hover:bg-[#c4682c] hover:-translate-y-1 transition-all text-xs uppercase tracking-widest">
+                Yes, Sign Me Out
+              </button>
+              <button @click="activeModal = null" class="w-full border-2 border-gray-100 bg-white text-gray-700 font-black py-4 rounded-2xl hover:bg-gray-50 transition-all text-xs uppercase tracking-widest">
+                Stay Signed In
+              </button>
+            </div>
           </div>
         </div>
       </div>

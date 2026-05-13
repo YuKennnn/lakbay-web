@@ -399,46 +399,51 @@ User Preferences: ${planTitle.value}`;
 
 <template>
   <div v-if="isOpen" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-300 p-4">
-    <div class="bg-white w-full max-w-2xl rounded-[2rem] overflow-hidden shadow-2xl animate-fade-in relative max-h-[90vh] flex flex-col">
+    <div class="bg-white w-full max-w-2xl rounded-[2.5rem] overflow-hidden shadow-2xl animate-fade-in relative max-h-[90vh] flex flex-col">
       
       <!-- HEADER -->
-      <div class="bg-gradient-to-r from-[#2A8B8B] to-[#1e6666] px-6 py-5 flex justify-between items-center text-white shrink-0">
-        <h3 class="font-bold tracking-wider text-sm uppercase">Lakbay AI 1-Day Planner</h3>
-        <button @click="$emit('close')" class="bg-white/20 text-white hover:bg-white hover:text-[#2A8B8B] rounded-full p-2 shadow-sm transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+      <div class="bg-gradient-to-r from-[#2A8B8B] to-[#1e6666] px-8 py-6 flex justify-between items-center text-white shrink-0">
+        <div>
+          <h3 class="font-black text-xl tracking-tight">Lakbay AI 1-Day Planner</h3>
+          <p class="text-[10px] uppercase tracking-widest font-bold opacity-80">Personalized island adventures</p>
+        </div>
+        <button @click="$emit('close')" class="bg-white/20 hover:bg-white/30 text-white rounded-full p-2 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
       </div>
       
       <!-- FORM MODE -->
-      <div v-if="mode === 'form'" class="p-6 overflow-y-auto custom-scrollbar flex-grow">
-        <div class="space-y-5">
+      <div v-if="mode === 'form'" class="p-8 overflow-y-auto custom-scrollbar flex-grow">
+        <div class="space-y-6">
           <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Plan Title</label>
-            <input v-model="planTitle" type="text" placeholder="e.g., Quick Manila Food Crawl" class="w-full border border-gray-200 rounded-xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-[#2A8B8B] text-sm text-gray-700 placeholder-gray-400 bg-gray-50">
+            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 ml-1">Plan Title</label>
+            <input v-model="planTitle" type="text" placeholder="e.g., Quick Manila Food Crawl" class="w-full border-2 border-gray-100 bg-gray-50 rounded-2xl px-5 py-4 outline-none focus:border-[#2A8B8B] focus:bg-white transition-all text-sm text-gray-700 font-bold placeholder:font-medium">
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Destination</label>
-              <input v-model="destination" type="text" placeholder="e.g., Binondo" class="w-full border border-gray-200 rounded-xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-[#2A8B8B] text-sm text-gray-700 placeholder-gray-400 bg-gray-50">
+              <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 ml-1">Destination</label>
+              <input v-model="destination" type="text" placeholder="e.g., Binondo" class="w-full border-2 border-gray-100 bg-gray-50 rounded-2xl px-5 py-4 outline-none focus:border-[#2A8B8B] focus:bg-white transition-all text-sm text-gray-700 font-bold placeholder:font-medium">
             </div>
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Starting Point</label>
-              <input v-model="startingPoint" type="text" placeholder="e.g., Makati" class="w-full border border-gray-200 rounded-xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-[#2A8B8B] text-sm text-gray-700 placeholder-gray-400 bg-gray-50">
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Date</label>
-              <input v-model="planDate" type="date" class="w-full border border-gray-200 rounded-xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-[#2A8B8B] text-sm text-gray-700 bg-gray-50">
-            </div>
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Number of People</label>
-              <input v-model="peopleCount" type="number" min="1" class="w-full border border-gray-200 rounded-xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-[#2A8B8B] text-sm text-gray-700 bg-gray-50">
+              <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 ml-1">Starting Point</label>
+              <input v-model="startingPoint" type="text" placeholder="e.g., Makati" class="w-full border-2 border-gray-100 bg-gray-50 rounded-2xl px-5 py-4 outline-none focus:border-[#2A8B8B] focus:bg-white transition-all text-sm text-gray-700 font-bold placeholder:font-medium">
             </div>
           </div>
 
-          <button @click="generatePlan" :disabled="!destination || !planDate" class="w-full bg-[#D97736] text-white font-black uppercase tracking-widest text-sm py-4 rounded-xl shadow-[0_8px_20px_rgba(217,119,54,0.3)] hover:bg-[#c4682c] hover:-translate-y-1 transition disabled:opacity-50 disabled:cursor-not-allowed mt-2 flex justify-center items-center gap-2">
-            <span class="text-xl">✨</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 ml-1">Date</label>
+              <input v-model="planDate" type="date" class="w-full border-2 border-gray-100 bg-gray-50 rounded-2xl px-5 py-4 outline-none focus:border-[#2A8B8B] focus:bg-white transition-all text-sm text-gray-700 font-bold">
+            </div>
+            <div>
+              <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3 ml-1">Number of People</label>
+              <input v-model="peopleCount" type="number" min="1" class="w-full border-2 border-gray-100 bg-gray-50 rounded-2xl px-5 py-4 outline-none focus:border-[#2A8B8B] focus:bg-white transition-all text-sm text-gray-700 font-bold">
+            </div>
+          </div>
+
+          <button @click="generatePlan" :disabled="!destination || !planDate" class="w-full bg-[#D97736] text-white font-black py-4.5 rounded-2xl shadow-xl shadow-orange-100 hover:bg-[#c4682c] hover:-translate-y-1 transition-all mt-4 uppercase tracking-widest text-xs flex justify-center items-center gap-3 disabled:opacity-50 disabled:translate-y-0 disabled:shadow-none">
+            <span class="text-lg">✨</span>
             Generate AI Plan
           </button>
         </div>
