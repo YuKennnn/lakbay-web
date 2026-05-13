@@ -1,16 +1,21 @@
 <script setup>
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
-const paymentMethod = ref('card'); // 'card', 'gcash', 'maya'
+const route = useRoute();
 const isProcessing = ref(false);
+const isSuccess = ref(false);
+const errorMessage = ref('');
 
-const cardDetails = ref({
-  number: '',
+const paymentInfo = ref({
+  email: '',
+  cardNumber: '',
   expiry: '',
   cvc: '',
-  name: ''
+  name: '',
+  country: 'Philippines',
+  zip: ''
 });
 
 const selectedPlan = ref({
@@ -24,18 +29,63 @@ const selectedPlan = ref({
   ]
 });
 
-const goBack = () => {
-  router.push('/subscription');
+// Watch for error message to clear it after 3 seconds
+watch(errorMessage, (newVal) => {
+  if (newVal) {
+    setTimeout(() => {
+      errorMessage.value = '';
+    }, 3000);
+  }
+});
+
+onMounted(() => {
+  paymentInfo.value.email = localStorage.getItem('user_email') || '';
+  paymentInfo.value.name = localStorage.getItem('user_fullname') || '';
+
+  if (route.query.plan) {
+    selectedPlan.value.name = route.query.plan === 'Plus' ? 'Lakbay+ PLUS' : 'Lakbay+ PRO';
+    selectedPlan.value.price = route.query.price || (route.query.plan === 'Plus' ? '₱99' : '₱199');
+    if (route.query.plan === 'Plus') {
+       selectedPlan.value.features = ['Ad-free travel planning', 'Basic AI Matcher', 'Up to 3 Active Group Trips'];
+    }
+  }
+});
+
+const validateEmail = (email) => {
+  const re = /^[^\s@]+@[^\s@]+\.(com|edu\.ph|yahoo\.com|net|org)$/;
+  return re.test(String(email).toLowerCase());
+};
+
+const validateCard = (num) => {
+  const cleanNum = num.replace(/\s+/g, '');
+  return cleanNum.length === 16;
 };
 
 const handlePayment = () => {
+  errorMessage.value = '';
+
+  if (!validateEmail(paymentInfo.value.email)) {
+    errorMessage.value = "Please enter a valid email address.";
+    return;
+  }
+
+  if (!validateCard(paymentInfo.value.cardNumber)) {
+    errorMessage.value = "Please enter a valid 16-digit card number.";
+    return;
+  }
+  if (!paymentInfo.value.expiry || !paymentInfo.value.cvc) {
+    errorMessage.value = "Please complete card details.";
+    return;
+  }
+
   isProcessing.value = true;
-  // Simulate payment processing
   setTimeout(() => {
     isProcessing.value = false;
-    alert('Payment Successful! Welcome to Lakbay+ PRO.');
-    router.push('/plan');
-  }, 2000);
+    isSuccess.value = true;
+    setTimeout(() => {
+      router.push('/trips');
+    }, 2500);
+  }, 2500);
 };
 
 const formatCardNumber = (e) => {
@@ -45,7 +95,7 @@ const formatCardNumber = (e) => {
     if (i > 0 && i % 4 === 0) formattedValue += ' ';
     formattedValue += value[i];
   }
-  cardDetails.value.number = formattedValue.substring(0, 19);
+  paymentInfo.value.cardNumber = formattedValue.substring(0, 19);
 };
 
 const formatExpiry = (e) => {
@@ -53,221 +103,172 @@ const formatExpiry = (e) => {
   if (value.length > 2) {
     value = value.substring(0, 2) + '/' + value.substring(2, 4);
   }
-  cardDetails.value.expiry = value.substring(0, 5);
+  paymentInfo.value.expiry = value.substring(0, 5);
+};
+
+const goBack = () => {
+  router.push('/subscription');
 };
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#Fdfbf9] py-12 px-4 sm:px-6 font-sans">
-    <div class="max-w-4xl mx-auto">
+  <div class="min-h-screen bg-gray-50/30 py-8 sm:py-12 lg:py-12 px-4 font-sans antialiased text-gray-800">
+    
+    <!-- Success Modal Overlay -->
+    <div v-if="isSuccess" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-white/95 backdrop-blur-md animate-fade-in">
+      <div class="text-center max-w-xs">
+        <div class="w-16 h-16 bg-green-100 text-green-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2 tracking-tight">Payment Success!</h2>
+        <p class="text-sm text-gray-500 font-medium mb-8">Your adventure has been upgraded.</p>
+        <div class="animate-pulse text-[#2A8B8B] font-bold uppercase tracking-widest text-[10px]">Initializing Experience...</div>
+      </div>
+    </div>
+
+    <div class="max-w-xl mx-auto">
       <!-- Header -->
-      <div class="flex items-center gap-4 mb-8">
-        <button @click="goBack" class="p-2 rounded-full hover:bg-gray-100 transition-colors">
-          <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800 tracking-tight">Complete Your Payment</h1>
+      <div class="flex items-center justify-between mb-8 sm:mb-10 lg:mb-8">
+        <div class="flex items-center gap-4">
+          <button @click="goBack" class="p-2 bg-white rounded-xl border border-gray-100 hover:border-gray-200 transition-all shadow-sm group">
+            <svg class="w-5 h-5 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" /></svg>
+          </button>
+          <h1 class="text-2xl sm:text-3xl lg:text-2xl font-bold text-[#2A8B8B]">Checkout</h1>
+        </div>
+        <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-full border border-gray-50 shadow-sm">
+          <div class="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+          <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Secure Checkout</span>
+        </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
-        <!-- Payment Details (Left) -->
-        <div class="lg:col-span-3 space-y-6">
-          <!-- Payment Methods -->
-          <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Payment Method</h3>
-            <div class="grid grid-cols-3 gap-3">
-              <button 
-                @click="paymentMethod = 'card'"
-                :class="['flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all', 
-                         paymentMethod === 'card' ? 'border-[#2A8B8B] bg-teal-50/50' : 'border-gray-100 hover:border-gray-200']"
-              >
-                <svg class="w-6 h-6 mb-2" :class="paymentMethod === 'card' ? 'text-[#2A8B8B]' : 'text-gray-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V5a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <span class="text-xs font-bold" :class="paymentMethod === 'card' ? 'text-[#2A8B8B]' : 'text-gray-500'">Card</span>
-              </button>
-              
-              <button 
-                @click="paymentMethod = 'gcash'"
-                :class="['flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all', 
-                         paymentMethod === 'gcash' ? 'border-[#2A8B8B] bg-teal-50/50' : 'border-gray-100 hover:border-gray-200']"
-              >
-                <div class="w-6 h-6 mb-2 flex items-center justify-center font-black text-sm" :class="paymentMethod === 'gcash' ? 'text-[#2A8B8B]' : 'text-gray-400'">G</div>
-                <span class="text-xs font-bold" :class="paymentMethod === 'gcash' ? 'text-[#2A8B8B]' : 'text-gray-500'">GCash</span>
-              </button>
+      <div class="flex flex-col gap-6">
+        
+        <!-- Order Summary Card -->
+        <div class="bg-[#2A8B8B] rounded-3xl p-6 sm:p-8 lg:p-6 text-white shadow-xl relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-16 -mt-16"></div>
+          
+          <div class="relative z-10">
+            <div class="flex items-center justify-between mb-4 pb-4 border-b border-white/10">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20">
+                   <img src="@/assets/images/lakbay_logo.png" class="w-7 h-7 object-contain" />
+                </div>
+                <div>
+                  <h4 class="text-lg font-bold tracking-tight mb-0.5 leading-none lg:text-base">{{ selectedPlan.name }}</h4>
+                  <p class="text-teal-100/70 font-bold uppercase tracking-widest text-[9px]">Monthly Subscription</p>
+                </div>
+              </div>
+              <div class="text-right">
+                 <span class="text-xl font-bold lg:text-lg">{{ selectedPlan.price }}</span>
+              </div>
+            </div>
 
-              <button 
-                @click="paymentMethod = 'maya'"
-                :class="['flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all', 
-                         paymentMethod === 'maya' ? 'border-[#2A8B8B] bg-teal-50/50' : 'border-gray-100 hover:border-gray-200']"
-              >
-                <div class="w-6 h-6 mb-2 flex items-center justify-center font-black text-sm" :class="paymentMethod === 'maya' ? 'text-[#2A8B8B]' : 'text-gray-400'">M</div>
-                <span class="text-xs font-bold" :class="paymentMethod === 'maya' ? 'text-[#2A8B8B]' : 'text-gray-500'">Maya</span>
-              </button>
+            <div class="flex justify-between items-center">
+               <span class="text-[10px] font-bold text-teal-100 uppercase tracking-widest">Total Amount Due</span>
+               <span class="text-3xl font-bold tracking-tighter text-[#D97736] lg:text-2xl">{{ selectedPlan.price }}</span>
             </div>
           </div>
+        </div>
 
-          <!-- Card Form -->
-          <div v-if="paymentMethod === 'card'" class="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100 space-y-5 animate-fade-in">
-            <div class="space-y-2">
-              <label class="text-xs font-bold text-gray-500 uppercase">Cardholder Name</label>
-              <input 
-                v-model="cardDetails.name"
-                type="text" 
-                placeholder="Juan Dela Cruz"
-                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#2A8B8B] focus:ring-0 transition-colors font-medium outline-none"
-              />
+        <!-- Main Form Area -->
+        <div class="space-y-6 lg:space-y-4">
+          
+          <!-- Animated Error Message -->
+          <transition name="fade">
+            <div v-if="errorMessage" class="bg-red-50 text-red-600 p-4 rounded-2xl border border-red-100 flex items-center gap-3 animate-shake shadow-sm lg:p-3">
+              <svg class="w-5 h-5 shrink-0 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <span class="text-xs font-bold uppercase tracking-wide lg:text-[10px]">{{ errorMessage }}</span>
             </div>
+          </transition>
 
-            <div class="space-y-2">
-              <label class="text-xs font-bold text-gray-500 uppercase">Card Number</label>
-              <div class="relative">
-                <input 
-                  v-model="cardDetails.number"
-                  @input="formatCardNumber"
-                  type="text" 
-                  placeholder="0000 0000 0000 0000"
-                  maxlength="19"
-                  class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#2A8B8B] focus:ring-0 transition-colors font-mono outline-none"
-                />
-                <div class="absolute right-4 top-1/2 -translate-y-1/2 flex gap-1">
-                  <div class="w-6 h-4 bg-gray-200 rounded-sm"></div>
-                  <div class="w-6 h-4 bg-gray-300 rounded-sm"></div>
+          <!-- Contact Section -->
+          <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-sm lg:p-6">
+            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 block lg:mb-3">Account Email</label>
+            <input 
+              v-model="paymentInfo.email"
+              type="email" 
+              placeholder="name@email.com"
+              class="w-full bg-gray-50/50 border border-gray-200 rounded-xl py-3 px-5 outline-none focus:border-[#2A8B8B] focus:bg-white transition-all font-bold text-gray-700 text-sm lg:py-2.5"
+            />
+          </div>
+
+          <!-- Payment Section -->
+          <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-sm lg:p-6">
+            <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6 lg:mb-4">Card Details</h3>
+            
+            <div class="space-y-5 lg:space-y-4">
+              <div class="space-y-2">
+                <label class="text-[9px] font-bold text-gray-400 uppercase ml-1">Card Information (Visa/Mastercard)</label>
+                <div class="relative">
+                  <input 
+                    v-model="paymentInfo.cardNumber"
+                    @input="formatCardNumber"
+                    type="text" 
+                    placeholder="4242 4242 4242 4242"
+                    maxlength="19"
+                    class="w-full bg-gray-50/50 border border-gray-200 rounded-xl py-3 px-5 outline-none focus:border-[#2A8B8B] focus:bg-white transition-all font-mono font-bold text-gray-700 tracking-wider text-sm lg:py-2.5"
+                  />
+                  <div class="absolute right-4 top-1/2 -translate-y-1/2 flex gap-1.5 opacity-40">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" class="h-3 lg:h-2.5" />
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" class="h-3 lg:h-2.5" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-2">
+                  <label class="text-[9px] font-bold text-gray-400 uppercase ml-1">Expiry</label>
+                  <input 
+                    v-model="paymentInfo.expiry"
+                    @input="formatExpiry"
+                    type="text" 
+                    placeholder="MM / YY"
+                    maxlength="5"
+                    class="w-full bg-gray-50/50 border border-gray-200 rounded-xl py-3 px-5 outline-none focus:border-[#2A8B8B] focus:bg-white transition-all font-mono font-bold text-gray-700 text-sm lg:py-2.5"
+                  />
+                </div>
+                <div class="space-y-2">
+                  <label class="text-[9px] font-bold text-gray-400 uppercase ml-1">CVC</label>
+                  <input 
+                    v-model="paymentInfo.cvc"
+                    type="password" 
+                    placeholder="•••"
+                    maxlength="3"
+                    class="w-full bg-gray-50/50 border border-gray-200 rounded-xl py-3 px-5 outline-none focus:border-[#2A8B8B] focus:bg-white transition-all font-mono font-bold text-gray-700 text-sm lg:py-2.5"
+                  />
                 </div>
               </div>
             </div>
-
-            <div class="grid grid-cols-2 gap-4">
-              <div class="space-y-2">
-                <label class="text-xs font-bold text-gray-500 uppercase">Expiry Date</label>
-                <input 
-                  v-model="cardDetails.expiry"
-                  @input="formatExpiry"
-                  type="text" 
-                  placeholder="MM/YY"
-                  maxlength="5"
-                  class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#2A8B8B] focus:ring-0 transition-colors font-mono outline-none"
-                />
-              </div>
-              <div class="space-y-2">
-                <label class="text-xs font-bold text-gray-500 uppercase">CVC</label>
-                <input 
-                  v-model="cardDetails.cvc"
-                  type="text" 
-                  placeholder="•••"
-                  maxlength="3"
-                  class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#2A8B8B] focus:ring-0 transition-colors font-mono outline-none"
-                />
-              </div>
-            </div>
-
-            <div class="pt-4">
-              <button 
-                @click="handlePayment"
-                :disabled="isProcessing"
-                class="w-full bg-[#D97736] text-white font-bold py-4 rounded-xl shadow-lg hover:bg-[#c4682c] transition-all flex items-center justify-center gap-2"
-              >
-                <svg v-if="isProcessing" class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                {{ isProcessing ? 'Processing...' : 'Pay ' + selectedPlan.price }}
-              </button>
-            </div>
           </div>
 
-          <!-- GCash/Maya Mockup -->
-          <div v-else class="bg-white p-12 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center text-center animate-fade-in">
-            <div class="w-20 h-20 bg-teal-50 rounded-full flex items-center justify-center mb-6">
-              <svg class="w-10 h-10 text-[#2A8B8B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <h4 class="text-xl font-bold text-gray-800 mb-2">Connect to {{ paymentMethod === 'gcash' ? 'GCash' : 'Maya' }}</h4>
-            <p class="text-gray-500 mb-8 max-w-xs">You will be redirected to the app to securely authorize the payment.</p>
+          <div class="pt-4 lg:pt-2">
             <button 
               @click="handlePayment"
               :disabled="isProcessing"
-              class="w-full max-w-xs bg-[#2A8B8B] text-white font-bold py-4 rounded-xl shadow-lg hover:bg-[#1e6666] transition-all"
+              class="w-full bg-[#D97736] text-white font-bold py-4 sm:py-5 lg:py-3.5 rounded-2xl shadow-lg hover:bg-[#c4682c] transition-all flex items-center justify-center gap-3 text-sm sm:text-base lg:text-sm"
             >
-              {{ isProcessing ? 'Connecting...' : 'Proceed to ' + (paymentMethod === 'gcash' ? 'GCash' : 'Maya') }}
+              <svg v-if="isProcessing" class="animate-spin h-5 w-5 text-white lg:h-4 lg:w-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              <span>{{ isProcessing ? 'Processing Transaction...' : 'Pay ' + selectedPlan.price }}</span>
             </button>
-          </div>
 
-          <p class="text-center text-xs text-gray-400 font-medium flex items-center justify-center gap-2">
-            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" /></svg>
-            Secure 256-bit SSL Encrypted Payment
-          </p>
-        </div>
-
-        <!-- Order Summary (Right) -->
-        <div class="lg:col-span-2">
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden sticky top-8">
-            <div class="p-6 border-b border-gray-100">
-              <h3 class="font-bold text-gray-800">Order Summary</h3>
-            </div>
-            
-            <div class="p-6 space-y-6">
-              <div class="flex items-start gap-4">
-                <div class="bg-[#F4EBE1] p-2 rounded-lg shrink-0">
-                  <img src="@/assets/images/lakbay_logo.png" alt="Logo" class="w-8 h-8 object-contain" />
-                </div>
-                <div>
-                  <h4 class="font-bold text-gray-800">{{ selectedPlan.name }}</h4>
-                  <p class="text-xs text-gray-500">Premium Subscription</p>
-                </div>
-                <div class="ml-auto">
-                  <span class="font-bold text-[#2A8B8B]">{{ selectedPlan.price }}</span>
-                </div>
-              </div>
-
-              <div class="space-y-3">
-                <div v-for="feature in selectedPlan.features" :key="feature" class="flex items-center gap-2 text-sm text-gray-600">
-                  <svg class="w-4 h-4 text-[#2A8B8B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-                  </svg>
-                  {{ feature }}
-                </div>
-              </div>
-
-              <div class="pt-6 border-t border-gray-100 space-y-4">
-                <div class="flex justify-between text-sm">
-                  <span class="text-gray-500">Subtotal</span>
-                  <span class="font-medium text-gray-800">{{ selectedPlan.price }}</span>
-                </div>
-                <div class="flex justify-between text-sm">
-                  <span class="text-gray-500">VAT (12%)</span>
-                  <span class="font-medium text-gray-800">₱0.00</span>
-                </div>
-                <div class="flex justify-between text-lg font-extrabold pt-2">
-                  <span class="text-gray-800">Total</span>
-                  <span class="text-[#D97736]">{{ selectedPlan.price }}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="bg-gray-50 p-4 text-center">
-              <p class="text-[10px] text-gray-400 font-medium">Billed monthly. Cancel anytime through your profile settings.</p>
-            </div>
+            <p class="text-center text-[8px] sm:text-[9px] text-gray-400 font-bold uppercase tracking-widest flex items-center justify-center gap-2 mt-6 opacity-60">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+              SECURE BANK-LEVEL ENCRYPTION
+            </p>
           </div>
         </div>
+
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-input::placeholder {
-  color: #CBD5E0;
-}
+.animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+.animate-shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+.fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(1px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-1.5px, 0, 0); } 40%, 60% { transform: translate3d(1.5px, 0, 0); } }
 </style>
+

@@ -29,9 +29,13 @@ const notifications = ref([
 ]);
 
 onMounted(() => {
-  user.value.name = localStorage.getItem('user_fullname') || 'Traveler';
-  user.value.email = localStorage.getItem('user_email') || 'travelling@lakbay.app';
-  const storedAvatar = localStorage.getItem('user_avatar');
+  const email = localStorage.getItem('user_email') || 'travelling@lakbay.app';
+  user.value.email = email;
+  
+  // Use user-specific keys to prevent cross-account data leakage
+  user.value.name = localStorage.getItem(`user_fullname_${email}`) || localStorage.getItem('user_fullname') || 'Traveler';
+  
+  const storedAvatar = localStorage.getItem(`user_avatar_${email}`);
   if (storedAvatar) user.value.avatar = storedAvatar;
 });
 
@@ -70,7 +74,8 @@ const handleFileUpload = (event) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       user.value.avatar = e.target.result;
-      localStorage.setItem('user_avatar', e.target.result);
+      // Save with unique key per user
+      localStorage.setItem(`user_avatar_${user.value.email}`, e.target.result);
     };
     reader.readAsDataURL(file);
   }
@@ -82,7 +87,10 @@ const saveProfile = () => {
     setTimeout(() => showError.value = false, 3000);
     return;
   }
-  localStorage.setItem('user_fullname', user.value.name);
+  
+  // Save with user-specific key
+  localStorage.setItem(`user_fullname_${user.value.email}`, user.value.name);
+  localStorage.setItem('user_fullname', user.value.name); // Keep for legacy/nav compatibility
   localStorage.setItem('user_email', user.value.email);
   activeModal.value = null;
 };
@@ -138,79 +146,82 @@ const settingsOptions = ref([
 
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
       
-      <div class="bg-white rounded-[2.5rem] shadow-xl shadow-teal-900/5 border border-white overflow-hidden mb-10 group">
+      <div class="bg-white rounded-[2.5rem] shadow-xl shadow-teal-900/5 border border-white overflow-hidden mb-8 lg:mb-10 group transition-all duration-500 hover:shadow-2xl hover:shadow-teal-900/10">
         
-        <div class="h-48 sm:h-64 bg-gradient-to-br from-[#2A8B8B] via-[#43A0A0] to-[#2A8B8B] relative overflow-hidden">
+        <div class="h-40 lg:h-64 bg-gradient-to-br from-[#2A8B8B] via-[#43A0A0] to-[#2A8B8B] relative overflow-hidden">
           <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
           <div class="absolute top-0 right-0 -mr-16 -mt-16 w-80 h-80 rounded-full bg-white opacity-20 blur-3xl"></div>
-          <div class="absolute bottom-0 left-1/4 w-60 h-60 rounded-full bg-lakbay-orange opacity-30 blur-2xl"></div>
+          <div class="absolute bottom-0 left-1/4 w-60 h-60 rounded-full bg-lakbay-orange/20 opacity-30 blur-2xl"></div>
           
-          <button @click="triggerFileUpload" class="absolute top-6 right-6 bg-white/20 hover:bg-white/40 backdrop-blur-xl text-white p-3 rounded-2xl transition duration-300 border border-white/30 shadow-lg">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path></svg>
+          <button @click="triggerFileUpload" class="absolute top-4 right-4 lg:top-6 lg:right-6 bg-white/20 hover:bg-white/40 backdrop-blur-xl text-white p-2.5 lg:p-3 rounded-2xl transition duration-300 border border-white/30 shadow-lg">
+            <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path></svg>
           </button>
         </div>
 
-        <div class="px-6 sm:px-10 pb-8 flex flex-col sm:flex-row items-center sm:items-end gap-5 -mt-16 sm:-mt-20 relative z-10">
+        <div class="px-6 lg:px-10 pb-8 flex flex-col lg:flex-row items-center lg:items-end gap-4 lg:gap-6 -mt-16 lg:-mt-20 relative z-10">
           
-          <div class="relative shrink-0">
-            <img :src="user.avatar" alt="Profile" class="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-white shadow-md object-cover bg-white" />
-            <button @click="triggerFileUpload" class="absolute bottom-2 right-2 bg-lakbay-orange text-white p-2 rounded-full shadow-lg hover:scale-105 transition border-2 border-white">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+          <div class="relative shrink-0 group/avatar">
+            <img :src="user.avatar" alt="Profile" class="w-32 h-32 lg:w-44 lg:h-44 rounded-full border-[6px] border-white shadow-xl object-cover bg-white transition-transform duration-500 group-hover/avatar:scale-105" />
+            <button @click="triggerFileUpload" class="absolute bottom-1 right-1 lg:bottom-3 lg:right-3 bg-[#D97736] text-white p-2.5 rounded-full shadow-lg hover:scale-110 active:scale-95 transition-all border-4 border-white">
+              <svg class="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path></svg>
             </button>
           </div>
 
-          <div class="text-center sm:text-left mb-2 sm:mb-4 flex-grow min-w-0">
-            <h1 class="text-3xl sm:text-4xl font-black text-lakbay-teal tracking-tight break-words leading-tight">{{ user.name }}</h1>
-            <p class="text-gray-500 font-bold mt-1 break-words">{{ user.email }}</p>
+          <div class="text-center lg:text-left mb-2 lg:mb-6 flex-grow min-w-0">
+            <div class="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-4 justify-center lg:justify-start">
+              <h1 class="text-3xl lg:text-4xl font-bold text-[#2A8B8B] tracking-tight break-words leading-tight">{{ user.name }}</h1>
+              <span v-if="user.isPremium" class="inline-flex items-center self-center px-3 py-1 rounded-full text-[10px] font-bold bg-orange-50 text-[#D97736] border border-orange-100 uppercase tracking-widest shadow-sm">Premium</span>
+            </div>
+            <p class="text-gray-400 font-bold mt-1.5 break-words text-sm lg:text-base">{{ user.email }}</p>
           </div>
 
-          <div class="hidden sm:flex gap-3 mb-4">
-            <button class="bg-white border border-gray-200 text-gray-700 font-bold py-2.5 px-6 rounded-full hover:bg-gray-50 transition shadow-sm text-sm">
+          <div class="flex flex-col lg:flex-row gap-3 w-full max-w-sm lg:max-w-none mx-auto lg:mx-0 lg:w-auto mt-6 lg:mt-0 lg:mb-6">
+            <button class="w-full lg:w-auto bg-gray-50 border border-gray-100 text-gray-600 font-bold py-3.5 lg:py-2.5 px-8 rounded-2xl hover:bg-white hover:border-[#2A8B8B]/30 hover:text-[#2A8B8B] transition-all shadow-sm text-sm">
               Share Profile
             </button>
-            <button @click="handleSignOut" class="bg-lakbay-orange text-white font-black py-2.5 px-8 rounded-full hover:bg-[#c4682c] transition shadow-md text-sm">
+            <button @click="handleSignOut" class="w-full lg:w-auto bg-[#D97736] text-white font-bold py-3.5 lg:py-2.5 px-10 rounded-2xl hover:bg-[#c4682c] hover:shadow-orange-200 transition-all shadow-lg shadow-orange-100 text-sm">
               Sign Out
             </button>
           </div>
         </div>
       </div>
 
-      <div>
-        <h2 class="text-2xl font-black text-gray-800 mb-6 pl-2 tracking-tight">Account Settings</h2>
+      <div class="mt-4">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 pl-2 tracking-tight">Account Settings</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           
           <div v-for="option in settingsOptions" :key="option.id" 
                @click="handleOptionClick(option.title)"
                :class="[
-                 `border-2 rounded-[2rem] p-6 flex items-center gap-5 cursor-pointer transition-all duration-300 group bg-white shadow-sm hover:shadow-xl`,
-                 option.theme === 'orange' ? 'border-orange-50 hover:border-lakbay-orange/30 hover:shadow-orange-100/50' : 'border-teal-50 hover:border-lakbay-teal/30 hover:shadow-teal-100/50'
+                 `border-2 rounded-3xl p-6 flex items-center gap-5 cursor-pointer transition-all duration-300 group bg-white shadow-sm hover:shadow-xl`,
+                 option.theme === 'orange' ? 'border-orange-50 hover:border-[#D97736]/30 hover:shadow-orange-100/50' : 'border-teal-50 hover:border-[#2A8B8B]/30 hover:shadow-teal-100/50'
                ]">
             
             <div :class="[
               'w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner shrink-0 group-hover:scale-110 transition-transform duration-300',
-              option.theme === 'orange' ? 'bg-orange-50 text-lakbay-orange' : 'bg-teal-50 text-lakbay-teal'
+              option.theme === 'orange' ? 'bg-orange-50 text-[#D97736]' : 'bg-teal-50 text-[#2A8B8B]'
             ]">
               <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" v-html="option.icon"></svg>
             </div>
-
+ 
             <div class="flex-grow">
-              <h3 class="font-black text-lg mb-0.5 tracking-tight text-gray-800">{{ option.title }}</h3>
+              <h3 class="font-bold text-lg mb-0.5 tracking-tight text-gray-800">{{ option.title }}</h3>
               <p class="text-xs font-bold text-gray-400">{{ option.desc }}</p>
             </div>
-
-            <div class="shrink-0 transition-transform duration-300 group-hover:translate-x-1" :class="option.theme === 'orange' ? 'text-lakbay-orange' : 'text-lakbay-teal'">
+ 
+            <div class="shrink-0 transition-transform duration-300 group-hover:translate-x-1" :class="option.theme === 'orange' ? 'text-[#D97736]' : 'text-[#2A8B8B]'">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
             </div>
             
           </div>
-
+ 
         </div>
-
-        <button @click="handleSignOut" class="sm:hidden w-full mt-8 bg-red-50 text-red-600 border border-red-100 font-black py-4 rounded-2xl hover:bg-red-100 transition shadow-sm">
+ 
+        <button @click="handleSignOut" class="lg:hidden w-full max-w-sm mx-auto block mt-10 bg-red-50 text-red-600 border border-red-100 font-bold py-4 rounded-2xl hover:bg-red-100 transition shadow-sm">
           Sign Out
         </button>
-
+ 
       </div>
     </div>
 
@@ -223,7 +234,7 @@ const settingsOptions = ref([
           <div class="p-8 sm:p-10">
             <div class="flex justify-between items-start mb-8">
               <div>
-                <h3 class="text-3xl font-black text-lakbay-teal tracking-tight">Edit Profile</h3>
+                <h3 class="text-3xl font-bold text-[#2A8B8B] tracking-tight">Edit Profile</h3>
                 <p class="text-gray-500 text-sm mt-1">Keep your information up to date.</p>
               </div>
               <button @click="activeModal = null" class="p-2 hover:bg-gray-100 rounded-full transition">
@@ -233,23 +244,23 @@ const settingsOptions = ref([
 
             <div class="space-y-5">
               <div>
-                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Full Name</label>
-                <input v-model="user.name" type="text" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:border-lakbay-teal transition font-bold text-gray-700">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Full Name</label>
+                <input v-model="user.name" type="text" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:border-[#2A8B8B] transition font-bold text-gray-700">
               </div>
               <div>
-                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Email Address</label>
+                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Email Address</label>
                 <input v-model="user.email" type="email" 
                   :class="[
                     'w-full bg-gray-50 border-2 rounded-2xl py-4 px-6 outline-none transition font-bold text-gray-700',
-                    showError ? 'border-red-400' : 'border-gray-100 focus:border-lakbay-teal'
+                    showError ? 'border-red-400' : 'border-gray-100 focus:border-[#2A8B8B]'
                   ]">
                 <p v-if="showError" class="text-[10px] text-red-500 font-bold mt-2 ml-1 animate-pulse">Invalid user</p>
               </div>
               <div>
-                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Bio</label>
-                <textarea v-model="user.bio" rows="3" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:border-lakbay-teal transition font-bold text-gray-700 resize-none"></textarea>
+                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Bio</label>
+                <textarea v-model="user.bio" rows="3" class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 px-6 outline-none focus:border-[#2A8B8B] transition font-bold text-gray-700 resize-none"></textarea>
               </div>
-              <button @click="saveProfile" class="w-full bg-lakbay-teal text-white font-black py-4 rounded-2xl shadow-lg shadow-teal-100 hover:bg-[#237777] transition-all mt-4 text-lg">
+              <button @click="saveProfile" class="w-full bg-[#2A8B8B] text-white font-bold py-4 rounded-2xl shadow-lg shadow-teal-100 hover:bg-[#237777] transition-all mt-4 text-lg">
                 Save Changes
               </button>
             </div>
@@ -264,7 +275,7 @@ const settingsOptions = ref([
           <div class="p-8 sm:p-10">
             <div class="flex justify-between items-start mb-8">
               <div>
-                <h3 class="text-3xl font-black text-lakbay-teal tracking-tight">Notifications</h3>
+                <h3 class="text-3xl font-bold text-[#2A8B8B] tracking-tight">Notifications</h3>
                 <p class="text-gray-500 text-sm mt-1">Stay updated on your adventures.</p>
               </div>
               <button @click="activeModal = null" class="p-2 hover:bg-gray-100 rounded-full transition">
@@ -273,15 +284,15 @@ const settingsOptions = ref([
             </div>
 
             <div class="space-y-4">
-              <div v-for="notif in notifications" :key="notif.id" class="p-5 rounded-3xl bg-gray-50 border border-gray-100 hover:border-lakbay-teal/30 transition-all group">
+              <div v-for="notif in notifications" :key="notif.id" class="p-5 rounded-3xl bg-gray-50 border border-gray-100 hover:border-[#2A8B8B]/30 transition-all group">
                 <div class="flex gap-4">
                   <div class="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-2xl shrink-0">
                     {{ notif.icon }}
                   </div>
                   <div>
-                    <h4 class="font-black text-gray-800">{{ notif.title }}</h4>
+                    <h4 class="font-bold text-gray-800">{{ notif.title }}</h4>
                     <p class="text-sm text-gray-500 font-bold mt-0.5">{{ notif.body }}</p>
-                    <span class="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-2 block">{{ notif.time }}</span>
+                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-2 block">{{ notif.time }}</span>
                   </div>
                 </div>
               </div>
@@ -295,21 +306,21 @@ const settingsOptions = ref([
         <div class="absolute inset-0 bg-[#F8FAFB]/60 backdrop-blur-3xl animate-fade-in touch-none" @click="activeModal = null"></div>
         <div class="bg-white w-[92%] max-w-[500px] max-h-[90vh] rounded-[2.5rem] sm:rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] relative z-10 animate-slide-up border border-white/80 overflow-y-auto custom-scrollbar">
           <div class="p-8 sm:p-10 text-center">
-            <div class="w-20 h-20 bg-orange-50 text-lakbay-orange rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner">
+            <div class="w-20 h-20 bg-orange-50 text-[#D97736] rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner">
               <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-7.714 2.143L11 21l-2.286-6.857L1 12l7.714-2.143L11 3z"></path></svg>
             </div>
-            <h3 class="text-3xl font-black text-gray-800 tracking-tight mb-2">Lakbay+ Premium</h3>
+            <h3 class="text-3xl font-bold text-gray-800 tracking-tight mb-2">Lakbay+ Premium</h3>
             <p class="text-gray-500 font-bold mb-8">Unlock exclusive travel planning tools and AI insights.</p>
 
-            <div class="bg-teal-50 rounded-3xl p-6 border-2 border-lakbay-teal/10 mb-8">
+            <div class="bg-teal-50 rounded-3xl p-6 border-2 border-[#2A8B8B]/10 mb-8">
               <div class="flex justify-between items-center mb-4">
-                <span class="font-black text-lakbay-teal uppercase tracking-widest text-xs">Current Plan</span>
-                <span class="bg-white px-3 py-1 rounded-full text-[10px] font-black text-gray-400 border border-gray-100">FREE</span>
+                <span class="font-bold text-[#2A8B8B] uppercase tracking-widest text-xs">Current Plan</span>
+                <span class="bg-white px-3 py-1 rounded-full text-[10px] font-bold text-gray-400 border border-gray-100">FREE</span>
               </div>
               <p class="text-left text-sm text-gray-600 font-bold">Standard features enabled. Upgrade for premium perks!</p>
             </div>
 
-            <button class="w-full bg-lakbay-orange text-white font-black py-4 rounded-2xl shadow-lg shadow-orange-100 hover:bg-[#c4682c] transition-all text-lg mb-4">
+            <button class="w-full bg-[#D97736] text-white font-bold py-4 rounded-2xl shadow-lg shadow-orange-100 hover:bg-[#c4682c] transition-all text-lg mb-4">
               Upgrade Now — $9.99/mo
             </button>
             <button @click="activeModal = null" class="text-gray-400 font-bold text-sm hover:text-gray-600 transition">Maybe later</button>
